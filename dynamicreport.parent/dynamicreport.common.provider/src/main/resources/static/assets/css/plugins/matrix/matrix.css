@@ -1,0 +1,52 @@
+html, body {
+	color: #222;
+	font-family: Microsoft YaHei, Helvitica, Verdana, Tohoma, Arial,
+		san-serif;
+	margin: 0;
+	padding: 0;
+	text-decoration: none;
+}
+
+img {
+	border: 0;
+}
+
+ul {
+	list-style: none outside none;
+	margin: 0;
+	padding: 0;
+}
+
+body {
+	background-color: #eee;
+}
+
+body .mainmenu:after {
+	clear: both;
+	content: " ";
+	display: block;
+}
+
+body .mainmenu li {
+	float: left;
+	margin-left: 2.5%;
+	margin-top: 2.5%;
+	width: 270px;
+	border-radius: 3px;
+	overflow: hidden;
+}
+
+body .mainmenu li a {
+	display: block;
+	color: #FFF;
+	text-align: left;
+	margin-left:2px;
+	margin-top:5px;
+	margin-bottom:5px;
+	margin-right:2px;
+	font-size:10px;
+}
+
+body .mainmenu li a b {
+	display: block;
+}

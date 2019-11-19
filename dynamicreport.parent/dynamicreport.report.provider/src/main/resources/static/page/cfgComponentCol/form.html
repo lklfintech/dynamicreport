@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CfgComponentCol操作</title>
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+    <link rel="shortcut icon" href="favicon.ico"> 
+    <link href="../../assets/css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+    <link href="../../assets/css/font-awesome.css?v=4.4.0" rel="stylesheet">
+    <link href="../../assets/css/animate.css" rel="stylesheet">
+    <link href="../../assets/css/style.css?v=4.1.0" rel="stylesheet">
+
+</head>
+
+<body class="gray-bg">
+    <div class="wrapper wrapper-content animated fadeInRight">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-content">
+                        <form class="form-horizontal m-t" id="frm" method="post">
+                        	<input type="hidden" id="id" name="id">
+                             <div class="form-group"> 
+                                <label class="col-sm-3 control-label">Group：</label>
+                                <div class="col-sm-8">
+                                	<select class="form-control" id="group" name="group.id" >
+									</select>
+                                </div>
+                            </div>
+                             <div class="form-group"> 
+                                <label class="col-sm-3 control-label">Component：</label>
+                                <div class="col-sm-8">
+                                	<select class="form-control" id="component" name="component.id" >
+									</select>
+                                </div>
+                            </div>
+                             <div class="form-group"> 
+                                <label class="col-sm-3 control-label">Type：</label>
+                                <div class="col-sm-8">
+                                    <input id="type" name="type" class="form-control" type="text" required  maxlength="10">
+                                </div>
+                            </div>
+                             <div class="form-group"> 
+                                <label class="col-sm-3 control-label">Name：</label>
+                                <div class="col-sm-8">
+                                    <input id="name" name="name" class="form-control" type="text" required  maxlength="20">
+                                </div>
+                            </div>
+                             <div class="form-group"> 
+                                <label class="col-sm-3 control-label">ColName：</label>
+                                <div class="col-sm-8">
+                                    <input id="colName" name="colName" class="form-control" type="text" required  maxlength="20">
+                                </div>
+                            </div>
+                             <div class="form-group"> 
+                                <label class="col-sm-3 control-label">Len：</label>
+                                <div class="col-sm-8">
+                                    <input id="len" name="len" class="form-control" type="text"   maxlength="4">
+                                </div>
+                            </div>
+                             <div class="form-group"> 
+                                <label class="col-sm-3 control-label">Selected：</label>
+                                <div class="col-sm-8">
+                                    <input id="selected" name="selected" class="form-control" type="text"   maxlength="1">
+                                </div>
+                            </div>
+                             <div class="form-group"> 
+                                <label class="col-sm-3 control-label">Axis：</label>
+                                <div class="col-sm-8">
+                                    <input id="axis" name="axis" class="form-control" type="text"   maxlength="1">
+                                </div>
+                            </div>
+                             <div class="form-group"> 
+                                <label class="col-sm-3 control-label">Sequence：</label>
+                                <div class="col-sm-8">
+                        			<input id="sequence" name="sequence" class="form-control" type="number"   maxlength="11">
+                                </div>
+                            </div>
+                             <div class="form-group"> 
+                                <label class="col-sm-3 control-label">Status：</label>
+                                <div class="col-sm-8">
+	                        		<select class="form-control" id="status" style="width:200px;height:35px" name="status" required>
+										<option value="ACTIVE">启用</option>
+										<option value="INACTIVE">停用</option>
+									</select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-8 col-sm-offset-3">
+                                    <button class="btn btn-primary"  id="submitBut"  type="submit">提交</button>
+                                    &nbsp;<button class="btn btn-primary"  id="closeBut" onclick="closeChildWindow();" type="button">取消</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- 全局js -->
+    <script src="../../assets/js/jquery.min.js?v=2.1.4"></script>
+    <script src="../../assets/js/bootstrap.min.js?v=3.3.6"></script>
+
+    <!-- 自定义js -->
+    <script src="../../assets/js/content.js?v=1.0.0"></script>
+
+    <!-- jQuery Validation plugin javascript-->
+    <script src="../../assets/js/plugins/validate/jquery.validate.min.js"></script>
+    <script src="../../assets/js/plugins/validate/additional-methods.min.js"></script>
+    <script src="../../assets/js/plugins/validate/messages_zh.min.js"></script>
+    <script src="../../assets/js/plugins/layer/layer.min.js"></script>
+    <script src="../../assets/js/plugins/layer/laydate/laydate.js"></script>
+    <script src="../../assets/common/formUtils.js"></script>
+    <script type="text/javascript">
+    $(document).ready(function () {
+	  	var id=GetQueryString("id");
+		$.ajax({
+				type: 'post',
+				url: '../../group/query',
+	            dataType: 'json',
+	   			async:false, 
+	            success: function (data) {
+				var len = data.length;
+			 	$("#group").find('option').remove();
+			    $("#group").append($('<option value=\'\'>' + "---请选择---" + '</option>'));
+		        for (i = 0; i < len; i++) {
+		        	$("#group").append($('<option value=' + data[i].id + '>' + data[i].name + '</option>'));
+		        }
+			}
+		});
+		$.ajax({
+				type: 'post',
+				url: '../../component/query',
+	            dataType: 'json',
+	   			async:false, 
+	            success: function (data) {
+				var len = data.length;
+			 	$("#component").find('option').remove();
+			    $("#component").append($('<option value=\'\'>' + "---请选择---" + '</option>'));
+		        for (i = 0; i < len; i++) {
+		        	$("#component").append($('<option value=' + data[i].id + '>' + data[i].name + '</option>'));
+		        }
+			}
+		});
+	  	if(id){
+	  		$.ajax({
+    		   type: "GET",
+    		   dataType: "json",
+    		   url: '../../cfg/component-col/list/'+id,
+    		   success: function(data){
+    			   $('#frm').formEdit(data);
+    		    	 $("#group option").each(function(){
+ 						if($(this)[0].value==data.group.id){
+ 							$(this).attr("selected","selected");
+ 						}
+ 					});
+    		    	 $("#component option").each(function(){
+ 						if($(this)[0].value==data.component.id){
+ 							$(this).attr("selected","selected");
+ 						}
+ 					});
+     		   }
+    		});
+	  	}
+	    $("#frm").validate({
+	    	rules: {
+		   	  id: {
+		   		required: true,
+	 	    	maxlength: 32
+	 	      },
+		   	  group: {
+		   		
+	 	    	maxlength: 32
+	 	      },
+		   	  component: {
+		   		
+	 	    	maxlength: 32
+	 	      },
+		   	  type: {
+		   		required: true,
+	 	    	maxlength: 10
+	 	      },
+		   	  name: {
+		   		required: true,
+	 	    	maxlength: 20
+	 	      },
+		   	  colName: {
+		   		required: true,
+	 	    	maxlength: 20
+	 	      },
+		   	  len: {
+		   		
+	 	    	maxlength: 4
+	 	      },
+		   	  selected: {
+		   		
+	 	    	maxlength: 1
+	 	      },
+		   	  axis: {
+		   		
+	 	    	maxlength: 1
+	 	      },
+		   	  sequence: {
+		   		
+	 	    	maxlength: 11
+	 	      },
+    	    },
+    	    messages: {},
+    	    submitHandler:function(form){
+	    	    var requestType = "POST";
+    	    	var url="../../cfg/component-col/save";
+    	    	if(id){
+    	    		url="../../cfg/component-col/update";
+                    requestType = "PUT";
+    	    	}
+    	    	$("#submitBut").attr("disabled","disabled");
+     	    	$.ajax({
+   	    		   type: requestType,
+   	    		   dataType: "json",
+   	    		   url: url,
+   	    		   data: $(form).serialize(),
+   	    		   success: function(msg){
+	   	    			layer.msg(msg.msg, {time: 2000},function(){
+	   	    				if(msg.success){
+	   	    					var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+		   						parent.layer.close(index); 	
+	   	    				}
+ 	   					});
+   	    		   }
+   	    		});
+            } 
+    	});
+    });
+    </script>
+
+</body>
+
+</html>

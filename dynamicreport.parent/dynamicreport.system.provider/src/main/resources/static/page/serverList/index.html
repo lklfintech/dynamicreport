@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <title>服务器配置列表</title>
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+
+    <link rel="shortcut icon" href="favicon.ico"> 
+    <script type="text/javascript" src="../../assets/js/public_css.js"></script> 
+</head>
+
+<body class="gray-bg">
+    <div class="wrapper wrapper-content  animated fadeInRight">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="ibox ">
+                    <div class="ibox-title">
+                        <h5>服务器配置管理</h5>
+                    </div>
+                    <div class="ibox-content">
+                        <div class="row row-lg">
+		                    <div class="col-sm-12">
+		                        <!-- Example Card View -->
+		                        <div class="example-wrap">
+		                            <div class="example">
+		                            	<div class="btn-group hidden-xs" id="tableToolbar" role="group">
+		                                    <button type="button" class="btn btn-hight-light" onclick="add('form.html','893px', '460px','服务器配置添加');" id="addBtn">
+		                                        <i class="fa fa-plus" aria-hidden="true"></i>&nbsp;添加
+		                                    </button>
+		                                </div>
+		                            	<table id="table_list" data-mobile-responsive="true" style="table-layout: fixed;word-break:break-all; word-wrap:break-all;"></table>
+		                            </div>
+		                        </div>
+		                        <!-- End Example Card View -->
+		                    </div>
+	                    </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+   <script type="text/javascript" src="../../assets/js/public.js"></script>
+     
+    <!-- Page-Level Scripts -->
+    <script>
+        $(document).ready(function () {
+        	var columns=[ {
+		        title: "ip地址",
+		        field: "ip",
+		        sortable: true,
+		        width:"50"
+		    },{
+		        title: "端口号",
+		        field: "port",
+		        sortable: true,
+		        width:"50"
+		    }
+		     ,{
+		        title: "状态",
+		        sortable: true,
+		        field: "status",
+		        width:"50",
+                formatter: function (value, row, index) {
+                	if(value == 'ACTIVE')
+                		return '<span class="label label-info">启用</span>';
+                	else if(value == 'INACTIVE')
+                		return '<span class="label label-danger">停用</span>';
+                }
+		    },{
+		        title: "操作",
+		        field: "empty",
+		        width:"80",
+                formatter: function (value, row, index) {
+                	if(!contain(parent.globalPermissions,'system_user:saveOrUpdate')){
+                		 $("#addBut").attr("disabled","disabled");
+                	}
+                	 var editTile="服务器配置修改";
+                     var operateHtml = '';
+                    	var editUrl='form.html?id=' + row.id;
+                    	var widht='893px';
+                    	var height='460px';
+                    	var delUrl="../../server-list/" + row.id;
+                    	if(contain(parent.globalPermissions,'sys_server_list:saveOrUpdate')){
+                        	var operateHtml = '<button class="btn btn-primary btn-xs" type="button" onclick="edit(&quot;'+editUrl+'&quot;,&quot;'+ widht+'&quot;,&quot;'+height+'&quot;,&quot;'+editTile+'&quot;)" ><i class="fa fa-edit"></i>&nbsp;修改</button> &nbsp;';
+                    	}
+                    	if(contain(parent.globalPermissions,'sys_server_list:delete')){
+                        	operateHtml = operateHtml + '<button class="btn btn-danger btn-xs" type="button" onclick="del(&quot;'+row.id+'&quot;,&quot;'+delUrl+'&quot;)"><i class="fa fa-remove"></i>&nbsp;删除</button> &nbsp;';
+                    	}
+                     return operateHtml;
+                 
+                	return operateHtml;
+                }
+		    }];
+         	inintTableList("table_list",  "../../server-list/list", columns,detailFormatter);
+         });
+   
+  
+    
+        
+     
+    </script>
+
+ 
+</body>
+
+</html>

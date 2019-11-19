@@ -1,0 +1,111 @@
+.form-group {
+  margin-bottom: 6px;
+}
+
+.form-control,form .form-control{
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+input.form-control,select.form-control{
+  height: 28px;
+}
+
+.control-label{
+  line-height: 28px;
+}
+
+.btn-sm{
+	padding-top: 3px;
+	padding-bottom: 3px;
+}
+.form-group .checkbox,.form-group .radio{
+	margin-top:5px;
+	margin-bottom:5px;
+}
+
+.toolbar{
+	margin-bottom: 0px;
+	margin-top:0px;
+	padding-top:10px;
+	padding-bottom:5px;
+}
+
+.control-label {
+  color:#337ab7;
+}
+
+.nav-tabs>li>a {
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
+.panel-heading{
+	padding-top:5px;
+	padding-bottom:5px;
+}
+
+legend {
+  border-bottom: 1px solid #337ab7;
+  font-weight: bold;
+}
+
+.ar-fieldset legend {
+  color: #337ab7;
+  font-weight:bold;
+}
+
+.ar-fieldset {
+	margin-bottom:12px;
+}
+
+.label-only {
+  line-height: 28px;
+}
+
+.form-group {
+  margin-bottom: 0;
+}
+
+.form-group .form-control  {
+  margin-bottom: 6px;
+}
+
+.help-block{
+	position: relative;
+	top: -10px;
+}
+
+/** BEG 主界面边距 */
+.page-header {
+    padding-bottom: 0px;
+    margin: 5px 0 5px;
+}
+
+#page-wrapper {
+  padding: 0 5px;
+}
+
+.panel-body {
+  padding: 15px 10px;
+}
+
+.fixed-table-pagination div.pagination, .fixed-table-pagination .pagination-detail {
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+.fixed-table-pagination .pagination-info {
+  line-height: 28px;
+  margin-right: 5px;
+}
+
+.pull-left.pagination-detail button {
+  padding: 4px 10px;
+}
+
+.fixed-table-pagination .pagination a {
+  padding: 4px 10px;
+  line-height: 1.428571429;
+}
+
+/** END 主界面边距 */

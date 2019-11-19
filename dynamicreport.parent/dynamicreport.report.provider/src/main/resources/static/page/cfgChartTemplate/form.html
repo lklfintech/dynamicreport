@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>模板操作</title>
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+    <link rel="shortcut icon" href="favicon.ico">  	
+    <link rel="stylesheet" href="../../assets/css/codemirror.css">
+    
+    <script type="text/javascript" src="../../assets/js/public_css.js"></script>    
+
+</head>
+
+<body class="gray-bg">
+    <div class="wrapper wrapper-content animated fadeInRight">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-content">
+                        <form class="form-horizontal m-t" id="frm" method="post">
+                        	<input type="hidden" id="id" name="id">
+                             <div class="form-group"> 
+                                <label class="col-sm-2 control-label" style="text-align: -webkit-left;" >模板名称：</label>
+                                <div class="col-sm-5">
+                                    <input id="name" name="name" class="form-control" type="text" required  maxlength="40">
+                                </div>
+								<label class="col-sm-2 control-label">状态：</label>
+                                <div class="col-sm-3">
+	                        		<select class="form-control" id="status"   name="status" required>
+										<option value="ACTIVE">启用</option>
+										<option value="INACTIVE">停用</option>
+									</select>
+                                </div>
+                            </div>
+                            <div class="form-group"> 
+                                <label class="col-sm-2 control-label" style="text-align: -webkit-left;">模板内容：</label>
+                            </div>
+                            
+                             <div class="form-group"> 
+                                <div class="col-sm-12">
+									<textarea rows="6" id="content" name="content" class="form-control"   ></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-8 col-sm-offset-3">
+                                    <button class="btn btn-primary"  id="submitBut"  type="submit">提交</button>
+                                    &nbsp;<button class="btn btn-primary"  id="closeBut" onclick="closeChildWindow();" type="button">取消</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script type="text/javascript" src="../../assets/js/public.js"></script>
+    <script type="text/javascript" src="../../assets/js/plugins/highlight/codemirror.js"></script>
+	<script type="text/javascript" src="../../assets/js/plugins/highlight/javascript.js"></script>
+    
+    <script type="text/javascript">
+    var editor;
+
+    $(document).ready(function () {
+	  	var id=GetQueryString("id");
+	  	
+	  	editor = CodeMirror.fromTextArea(document.getElementById("content"), {
+    		 mode: "text/javascript",
+    		 textWrapping: false,
+    		 lineWrapping:true,
+    		 auto:'auto',
+    		 lineNumbers:true,
+    		 showCursorWhenSelecting:true,
+    		 cursorBlinkRate: 200
+    	});
+	  	
+	  	editor.setSize('auto','438px');
+	   	$("#identifier").blur(function(){
+	   		textBlur();
+	   	});
+	  	
+	  	
+	  	if(id){
+	  		$.ajax({
+    		   type: "GET",
+    		   dataType: "json",
+    		   url: '../../cfg/chart-template/list/'+id,
+    		   success: function(data){
+    			   $('#frm').formEdit(data);
+    			   editor.setValue(data.content);
+     		   }
+    		});
+	  	}
+	    $("#frm").validate({
+	    	rules: {
+		   	  id: {
+		   		required: true,
+	 	    	maxlength: 32
+	 	      },
+		   	  name: {
+		   		required: true,
+	 	    	maxlength: 40
+	 	      },
+		   	  content: {
+		   		required: true,
+	 	    	maxlength: 65535
+	 	      },
+    	    },
+    	    messages: {},
+    	    submitHandler:function(form){
+	    	    var requestType = "POST";
+    	    	var url="../../cfg/chart-template/save";
+    	    	if(id){
+    	    		url="../../cfg/chart-template/update";
+                    requestType = "PUT";
+    	    	}
+    	    	// $("#submitBut").attr("disabled","disabled");
+     	    	$.ajax({
+   	    		   type: requestType,
+   	    		   dataType: "json",
+   	    		   url: url,
+   	    		   data: $(form).serialize(),
+   	    		   success: function(msg){
+	   	    			layer.msg(msg.msg, {time: 2000},function(){
+	   	    				if(msg.success){
+	   	    					var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+		   						parent.layer.close(index); 	
+	   	    				}
+ 	   					});
+   	    		   }
+   	    		});
+            } 
+    	});
+    });
+    </script>
+
+</body>
+
+</html>

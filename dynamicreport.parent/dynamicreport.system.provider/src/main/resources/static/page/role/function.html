@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>功能管理</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <script type="text/javascript" src="../../assets/js/public_system.js"></script>
+    <link rel="shortcut icon" href="favicon.ico"> 
+    <link rel="stylesheet" type="text/css" href="../../assets/css/bootstrap-dialog/bootstrap-dialog.min.css">
+    <script type="text/javascript" src="../../assets/js/public_css.js"></script> 
+     
+    <script type="text/javascript">
+    $(document).ready(function () {
+		     if(!contain(parent.parent.globalPermissions,'role:saveFunctions')){
+		      		$("#submitBut").attr("disabled","disabled");
+		      }  
+			 var id=GetQueryString("id");
+		  	 $("#id").val(id);
+ 			 onLoad();
+ 			// BindEvent();
+			 //页面加载
+ 			 function onLoad(){$.ajax({
+		    	    //type: "post",
+		            url: '../../system-funtion/functions',
+		            data: {id:id},
+		            dataType: "json",
+		            success: function (result) {
+		           	 $("#left-tree").treeview({
+		           		data: result,         // 数据源
+		           		levels: 1,
+		           	    //color: "#428bca",
+ 		           	    showCheckbox:true, 
+		    		    //multiSelect:1,//这里之所以写1，是因为我引得js源码里定义1为true
+	                    highlightSelected: false,    //是否高亮选中
+  			     		onNodeSelected:function(event, node){
+			     			//$('#editName').val(node.text);
+			     			//$('#pkId').val(node.id);
+			     		},
+			            onNodeChecked: function(event, node) { //选中节点
+			                          var selectNodes = getChildNodeIdArr(node); //获取所有子节点
+			           	              if (selectNodes) { //子节点不为空，则选中所有子节点
+			                            	$('#left-tree').treeview('checkNode', [selectNodes, { silent: true }]);
+			           	                 }
+			           	           		updateAllParentNodes(node);
+			                           /*   var parentNode = $("#left-tree").treeview("getNode", node.parentId);
+			                             if(parentNode){
+			                            	 $('#left-tree').treeview('checkNode', [parentNode, { silent: true }]);
+			                             }  */ 
+			                             
+			                            // var parentNode_P = $("#left-tree").treeview("getNode", parentNode.parentId);
+			                             //if(parentNode_P){
+			                            	// $('#left-tree').treeview('checkNode', [parentNode_P, { silent: true }]);
+			                            // }
+			                             UpdateAllParentNodes(node);
+			                             //setParentUncheckNode(node);
+			                             //$("#left-tree").treeview("checkNode", parentNode.nodeId);
+			                             // setParentNodeCheck(node);
+			                            },
+			            onNodeUnchecked: function(event, node) { //取消选中节点
+			           	                 var selectNodes = getChildNodeIdArr(node); //获取所有子节点
+			                             if (selectNodes) { //子节点不为空，则取消选中所有子节点
+			                                     $('#left-tree').treeview('uncheckNode', [selectNodes, { silent: true }]);
+			                                }
+			                             setParentUncheckNode(node);
+			           	            } 
+		               });   
+ 		            },
+		            error: function () {
+		                alert("加载失败！")
+		            }
+		        }); 
+ 		     }
+  			/*-----页面pannel内容区高度自适应 start-----*/
+			$(window).resize(function () {
+				setCenterHeight();
+			});
+			setCenterHeight();
+			function setCenterHeight() {
+				var height = $(window).height();
+				var centerHight = height - 240;
+				$(".right_centent").height(centerHight).css("overflow", "auto");
+			}
+ 		    $("#frm").validate({
+ 		    	    messages: {},
+		    	    submitHandler:function(form){
+ 		    	    	 //获取所有被选中的记录
+		    	        var rows = $('#left-tree').treeview('getChecked');
+ 		    	        var ids = '';
+		    	        for (var i = 0; i < rows.length; i++) {
+		    	            ids += rows[i]['id'] + ",";
+		    	        }
+		    	        ids= ids.substring(0, ids.length - 1);
+ 		    	    	$.ajax({
+		   	    		   type: "POST",
+		   	    		   dataType: "json",
+		   	    		   url: "../../role/save-functions",
+		   	    		   data: {id:id,ids:ids},
+		   	    		   success: function(msg){
+			   	    			layer.msg(msg.msg, {time: 800},function(){
+			   						var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+			   						parent.layer.close(index); 
+			   					});
+		   	    		   }
+		   	    		});
+		            } 
+		    	});
+ 		    
+ 		    
+ 		   function getChildNodeIdArr(node) {
+ 			             var ts = [];
+ 			               if (node.nodes) {
+ 			                    for (x in node.nodes) {
+ 			                       ts.push(node.nodes[x].nodeId);
+ 			                       if (node.nodes[x].nodes) {
+ 			                            var getNodeDieDai = getChildNodeIdArr(node.nodes[x]);
+ 			                            for (j in getNodeDieDai) {
+ 			                              ts.push(getNodeDieDai[j]);
+ 			                          }
+ 			                       }
+ 			                  }
+ 			               } else {
+ 			                  ts.push(node.nodeId);
+ 			              }
+ 			               return ts;
+ 			          }
+ 			   
+ 			 function setParentNodeCheck(node) {
+ 			          var parentNode = $("#left-tree").treeview("getNode", node.parentId);
+ 			          $("#left-tree").treeview("checkNode", parentNode.nodeId);
+ 			  }
+ 			         
+ 		     //当子类都没有选时。父类为不选
+ 		    function setParentUncheckNode(node) {
+ 			           var parentNode = $("#left-tree").treeview("getNode", node.parentId);
+ 			           if (parentNode.nodes) {
+ 			               var checkedCount = 0;
+ 			               for (x in parentNode.nodes) {
+  			                   if (parentNode.nodes[x].state.checked==false) {
+ 			                       checkedCount ++;
+ 			                   } else {
+ 			                       break;
+ 			                   }
+ 			               }
+  			               if (checkedCount === parentNode.nodes.length) {
+ 			                   $("#left-tree").treeview("uncheckNode", parentNode.nodeId);
+ 			                   setParentNodeCheck(parentNode);
+ 			               }
+ 			           }
+ 		   }	 
+ 		     
+ 		   function  updateAllParentNodes(treeNode) {
+  			   var parentNode = $("#left-tree").treeview("getNode", treeNode.parentId);
+               if(parentNode){
+              	 $('#left-tree').treeview('checkNode', [parentNode, { silent: true }]);
+              	 //var parentNode_P = $("#left-tree").treeview("getNode", parentNode.parentId);
+               	 updateAllParentNodes(parentNode);
+               }  
+  	        }  
+			 
+		});
+        
+  
+    
+    
+	</script>
+</head>
+<body class="gray-bg">
+    <div class="wrapper wrapper-content animated fadeInRight">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-content">
+                        <form class="form-horizontal m-t" id="frm" >
+                        	<input type="hidden" id="id" name="id">
+                        	<div class="row row-lg">
+			                    <div class="col-sm-12">
+			                        <!-- Example Card View -->
+			                        <div class="example-wrap">
+			                            <div class="example">
+			                            		<div id="left-tree"></div>	 
+			                            </div>
+			                        </div>
+			                        <!-- End Example Card View -->
+			                    </div>
+		                    </div>
+		                    <br>
+		                    <div class="row row-lg">
+                                <div class="col-sm-12"  style="padding-left: 60px;" >
+                                    <button class="btn btn-hight-light" id="submitBut"  type="submit">提交</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>

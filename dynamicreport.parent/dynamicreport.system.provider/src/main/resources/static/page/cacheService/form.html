@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>缓存配置操作</title>
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+    <link rel="shortcut icon" href="favicon.ico"> 
+	<script type="text/javascript" src="../../assets/js/public_css.js"></script> 
+
+</head>
+
+<body class="gray-bg">
+    <div class="wrapper wrapper-content animated fadeInRight">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-content">
+                  <form class="form-horizontal m-t" id="frm" method="post">
+                          	<input type="hidden" id="id" name="id">
+                           	 <div class="form-group"> 
+                                <label class="col-sm-3 control-label">服务器配置：</label>
+                                <div class="col-sm-8">
+                                	<select class="form-control" id="serverList" name="serverList.id" required>
+									</select>
+                                </div>
+                            </div>
+                        	<div class="form-group"> 
+                                <label class="col-sm-3 control-label">上下文路径：</label>
+                                <div class="col-sm-8">
+                                    <input id="contextPath" name="contextPath" class="form-control " type="text"    maxlength="50">
+                                </div>
+                            </div>
+                            <div class="form-group"> 
+                                <label class="col-sm-3 control-label">请求路径：</label>
+                                <div class="col-sm-8">
+                                    <input id="servicePath" name="servicePath" class="form-control"  minlength="2" type="text"   required="" aria-required="true" maxlength="50">
+                                </div>
+                            </div>
+                             <div class="form-group" id="httpDiv" >                                                                                         
+                                <label class="col-sm-3 control-label">请求方式：</label>                                                             
+                                <div class="col-sm-8">                                                                                          
+									<select class="form-control" id="httpmethod" name="httpmethod"  required>  
+										<option value="">---请选择---</option>                                                   
+										<option value="GET">GET</option>                                                                                            
+										<option value="POST">POST</option>                                                                                          
+									</select>                                                                                                                     
+                             </div> 
+                             </div> 
+                            <div class="form-group"> 
+                                <label class="col-sm-3 control-label">状态：</label>
+                                <div class="col-sm-8">
+                                 <select class="form-control" id="status" style="width:200px;height:35px" name="status" required="" aria-required="true">
+									<option value="ACTIVE">启用</option>
+									<option value="INACTIVE">停用</option>
+								</select>
+                                </div>
+                            </div>
+                              <div class="form-group">
+                                <label class="col-sm-3 control-label">描述：</label>
+                                <div class="col-sm-8">
+                                    <textarea rows="2" id="description" name="description" class="form-control" maxlength="500" ></textarea>
+                                </div> 
+                             </div>
+                              
+                             <div class="form-group">
+                                <div class="col-sm-8 col-sm-offset-3">
+                                    <button class="btn btn-hight-light" id="submitBut"  type="submit">提交</button>
+                                </div>
+                            </div>
+                          
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <script type="text/javascript" src="../../assets/js/public.js"></script>
+    <script type="text/javascript">
+    $(document).ready(function () {
+	  	var id=GetQueryString("id");
+		$.ajax({
+			type: 'GET',
+			 url: '../../server-list/list-all',
+	            dataType: 'json',
+				async: false,
+	            success: function (data) {
+				var len = data.length;
+			 	$("#serverList").find('option').remove();
+			    $("#serverList").append($('<option value=\'\'>' + "---请选择---" + '</option>'));
+		        for (i = 0; i < len; i++) {
+		        	$("#serverList").append($('<option value=' + data[i].id + '>' + data[i].ip + ':'+data[i].port+'</option>'));
+		        }
+			}
+		});
+	  	if(id){
+	  		$.ajax({
+    		   type: "GET",
+    		   dataType: "json",
+    		   async: true,
+    		   url: '../../cache-service/list/'+id,
+    		   success: function(data){
+     			   $('#frm').formEdit(data);
+    		    	 $("#serverList option").each(function(){
+   						if($(this)[0].value==data.serverList.id){
+ 							$(this).attr("selected","selected");
+ 						}
+ 					});
+     		   }
+    		});
+	  	}
+	    var  rules= {};
+		    fromValidate(rules,"../../cache-service/save-update");
+   		});
+    </script>
+
+</body>
+
+</html>

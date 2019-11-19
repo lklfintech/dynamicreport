@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <title>角色列表</title>
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+
+    <link rel="shortcut icon" href="favicon.ico"> 
+    <script type="text/javascript" src="../../assets/js/public_css.js"></script> 
+</head>
+
+<body class="gray-bg">
+    <div class="wrapper wrapper-content  animated fadeInRight">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="ibox ">
+                    <div class="ibox-title">
+                        <h5>角色管理</h5>
+                    </div>
+                    <div class="ibox-content">
+                        <div class="row row-lg">
+		                    <div class="col-sm-12">
+		                        <!-- Example Card View -->
+		                        <div class="example-wrap">
+		                            <div class="example">
+		                            	<div class="btn-group hidden-xs" id="tableToolbar" role="group">
+		                                    <button type="button" class="btn btn-hight-light" onclick="add('form.html','893px', '460px','角色添加');"  title="添加"  id="addBtn">
+		                                        <i class="fa fa-plus" aria-hidden="true"></i>&nbsp;添加
+		                                    </button>
+		                                </div>
+		                            	<table id="table_list" data-mobile-responsive="true" style="table-layout: fixed;word-break:break-all; word-wrap:break-all;"></table>
+		                            </div>
+		                        </div>
+		                        <!-- End Example Card View -->
+		                    </div>
+	                    </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+   <script type="text/javascript" src="../../assets/js/public.js"></script>
+
+    <script>
+         $(document).ready(function () {
+        	  	var columns=[{
+    		        title: "角色名称",
+    		        field: "name",
+    		        sortable: true,
+    		        width:"50"
+    		    },{
+    		        title: "角色KEY",
+    		        field: "key",
+    		        sortable: true,
+    		        width:"60"
+    		    },{
+    		        title: "状态",
+    		        sortable: true,
+    		        field: "status",
+    		        width:"40",
+                    formatter: function (value, row, index) {
+                    	if(value == 'ACTIVE')
+                    		return '<span class="label label-info">启用</span>';
+                    	else if(value == 'INACTIVE')
+                    		return '<span class="label label-danger">停用</span>';
+                    }
+    		    },{
+    		        title: "操作",
+    		        field: "empty",
+    		        width:"80",
+                    formatter: function (value, row, index) {
+	                    	if(!contain(parent.globalPermissions,'role:saveOrUpdate')){
+	                   		 $("#addBut").attr("disabled","disabled");
+		                   	}
+		                   	var operateHtml = '';
+		   	                var editTile="角色修改";
+		                   	var editMsg="管理员角色不能进行修改!";
+		                    var editUrl='form.html?id=' + row.id;
+		                   	var widht='893px';
+		                   	var height='460px';
+		                   	var delMsg="管理员角色不能进行删除!";
+		                   	var delUrl="../../role/" + row.id;
+	   	                 	if(contain(parent.globalPermissions,'role:saveOrUpdate')){
+	                       		var operateHtml = '<button class="btn btn-primary btn-xs" type="button" onclick="systemEdit(&quot;'+row.id+'&quot;,&quot;'+editMsg+'&quot;,&quot;'+editUrl+'&quot;,&quot;'+ widht+'&quot;,&quot;'+height+'&quot;,&quot;'+editTile+'&quot;)" ><i class="fa fa-edit"></i>&nbsp;修改</button> &nbsp;';
+	                      	}
+	                      	if(contain(parent.globalPermissions,'role:delete')){
+	                       		operateHtml = operateHtml + '<button class="btn btn-danger btn-xs" type="button" onclick="systemDel(&quot;'+row.id+'&quot;,&quot;'+delUrl+'&quot;,&quot;'+delMsg+'&quot;)"><i class="fa fa-remove"></i>&nbsp;删除</button> &nbsp;';
+	                      	}
+	                      	if(contain(parent.globalPermissions,'system_funtion:query')){
+	                        	operateHtml = operateHtml + '<button class="btn btn-hight-light-s btn-xs" type="button" onclick="openFunction(\''+row.id+'\')"><i class="fa fa-code-fork"></i>&nbsp;关联功能</button> &nbsp;';
+	                      	}
+	                      	if(contain(parent.globalPermissions,'system_user:query')){
+	                           operateHtml = operateHtml + '<button class="btn btn-hight-light-s btn-xs" type="button" onclick="openUserFunction(\''+row.id+'\')"><i class="fa fa-code-fork"></i>&nbsp;关联用户</button>';
+	                       }
+	                      	return operateHtml;
+                     }
+    		    }];
+         	inintTableList("table_list",  "../../role/list", columns);
+         });
+         
+     function openFunction(id){
+        	layer.open({
+        	      type: 2,
+        	      title: '选择功能',
+        	      shadeClose: true,
+        	      maxmin: true,            //最大化按钮
+        	      anim:3,                    //动画
+        	      shade: [0.8, '#393D49'],//遮罩层
+        	      area: ['893px', '460px'],
+        	      content: 'function.html?id=' + id
+        	    });
+        }
+
+        function openUserFunction(id){
+            layer.open({
+                type: 2,
+                title: '选择用户',
+                shadeClose: true,
+                maxmin: true,            //最大化按钮
+                anim:3,                    //动画
+                shade: [0.8, '#393D49'],//遮罩层
+                area: ['893px', '460px'],
+                content: 'user.html?id=' + id
+            });
+        }
+        
+        function confirmIsAdmin(id){
+        	var flag=true;
+          	$.ajax({
+     		   type: "GET",
+     		   dataType: "json",
+     		   async: false,
+     		   url: '../../role/list/'+id,
+     		   success: function(data){
+       			   if(data.key=="administrator"){
+       				  flag=true;
+     			   }else{
+     				  flag=false; 
+     			   }
+     		   }
+     		});
+          	return flag;
+        }
+        
+        
+    </script>
+
+       
+    
+
+</body>
+
+</html>

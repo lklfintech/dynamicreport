@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <title>日志列表</title>
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+
+    <link rel="shortcut icon" href="favicon.ico"> 
+    <script type="text/javascript" src="../../assets/js/public_css.js"></script> 
+</head>
+
+<body class="gray-bg">
+    <div class="wrapper wrapper-content  animated fadeInRight">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="ibox ">
+                    <div class="ibox-title">
+                        <h5>日志管理</h5>
+                    </div>
+                    <div class="ibox-content">
+                       <!--  <p>
+                        	<button class="btn btn-success " type="button" id="addBut" onclick="add('form.html','893px', '460px','用户添加');"><i class="fa fa-plus"></i>&nbsp;添加</button>
+                        </p> -->
+                          
+                         <div class="row row-lg">
+		                    <div class="col-sm-12">
+		                   
+		                        <!-- Example Card View -->
+		                        <div class="example-wrap">
+ 		                         	<div class="example">
+		 		                        <div  id="tableToolbar">
+			                            	<label>开始时间：</label>
+					                        <input style="width: 160px;text-align: center; height:34px;" id="startDateTime"  name="startDateTime" placeholder="YYYY-MM-DD hh:mm:ss" onclick="laydate({istime: true, istoday: true,format: 'YYYY-MM-DD hh:mm:ss'})">
+			                            	<label  >-&nbsp</label>
+			                            	<label>结束时间：</label>
+					                        <input style="width: 160px;text-align: center; height:34px;" id="endDateTime" name="endDateTime" placeholder="YYYY-MM-DD hh:mm:ss" onclick="laydate({istime: true,  istoday: true,format: 'YYYY-MM-DD hh:mm:ss'})">
+		 	                            	<label>&nbsp&nbsp动作：</label>
+			  								<select id="action"  style="width:100px;height:34px" name="action" onchange="selectOnchang(this)"   >
+												<option value="">请选择</option>
+												<option value="save">保存</option>
+												<option value="update">修改</option>
+												<option value="delete">删除</option>
+											</select>
+		 	                            	<label>&nbsp&nbsp类型：</label>
+			  								<select id="type"  style="width:100px;height:34px" name="type" onchange="selectOnchang(this)"   >
+												<option value="">请选择</option>
+												<option value="normal">操作信息</option>
+												<option value="error">错误信息</option>
+											</select>		 	                            
+		                                </div> 
+		                            	<table id="table_list" data-mobile-responsive="true" style="table-layout: fixed;word-break:break-all; word-wrap:break-all;"></table>
+		                            </div>
+		                        </div>
+		                        <!-- End Example Card View -->
+		                    </div>
+	                    </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+   <script type="text/javascript" src="../../assets/js/public.js"></script>
+     
+    <!-- Page-Level Scripts -->
+    <script>
+         $(document).ready(function () {
+ 			 //默认查询一个月时间数据
+			$('#startDateTime').val(laydate.now(-30, 'YYYY-MM-DD hh:mm:ss'));
+			$('#endDateTime').val(laydate.now(0, 'YYYY-MM-DD hh:mm:ss'));
+   			//初始化表格,动态从服务器加载数据  
+			$("#table_list").bootstrapTable({
+ 			    //使用get请求到服务器获取数据  
+			    method: "GET",
+			    //必须设置，不然request.getParameter获取不到请求参数
+			    contentType: "application/json",
+			    //获取数据的Servlet地址  
+			    url: "../../sys-log/list",
+	            toolbar: '#tableToolbar',
+			    //表格显示条纹  
+			    striped: true,
+			    showRefresh: true,
+			    //启动分页  
+			    pagination: true,
+			    //每页显示的记录数  
+			    pageSize: 10,
+			    //当前第几页  
+			    pageNumber: 1,
+			    sortable: true,  //是否启用排序    
+                sortOrder: "desc",
+			    //记录数可选列表  
+			    pageList: [10, 15, 20, 25,100],
+			    //是否启用查询  
+			    search: true,
+			    //是否启用详细信息视图
+			    detailView:true,
+			    detailFormatter:detailFormatter,
+			    //表示服务端请求  
+			    sidePagination: "server",
+			    //设置为undefined可以获取pageNumber，pageSize，searchText，sortName，sortOrder  
+			    //设置为limit可以获取limit, offset, search, sort, order  
+			    queryParamsType: "",
+				queryParams: queryParams,//参数
+			    //json数据解析
+			    responseHandler: function(res) {
+			        return {
+			            "rows": res.data,
+			            "total": res.rowsCount
+			        };
+			    },
+			    //数据列
+			    columns: [
+					{
+					    title: "操作用户",
+					    field: "userName",
+					    sortable: true,
+					    width:"50"
+					},{
+					    title: "ip地址",
+					    field: "ip",
+					    sortable: true,
+					    width:"50"
+					},{
+					    title: "访问路径",
+					    field: "url",
+					    sortable: true,
+					    width:"50"
+					},{
+					    title: "类型",
+					    field: "type",
+					    sortable: true,
+					    width:"50",
+					    formatter: function (value, row, index) {
+		                	if(value == 'error')
+		                		return '<span class="label label-danger">错误信息</span>';
+		                	else if(value == 'normal')
+		                		return '<span class="label label-info">操作信息</span>';
+		                }
+					},{
+					    title: "操作时间",
+					    field: "createDate",
+					    sortable: true,
+					    width:"50"
+					}
+				 ]
+			});
+ 			  
+			 /* var date=laydate.now(-30,'YYYY-MM-DD hh:mm:ss');
+			 $('#startDateTime').val(date);
+			 var date2=laydate.now(0,'YYYY-MM-DD hh:mm:ss');
+			 $('#endDateTime').val(date2); */
+			  //设置传入参数
+		      function queryParams(params) {
+		            var temp = {  //这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
+		                //limit: params.limit,  //页面大小
+		                //page: params.offset, //页码  
+		                pageSize: params.pageSize,
+		                pageNumber: params.pageNumber,
+		                startDateTime: $("#startDateTime").val(),
+		                endDateTime: $("#endDateTime").val(),
+		                searchText: params.searchText,
+ 		                sortName: params.sortName,  //排序列名   
+                     	sortOrder: params.sortOrder, //排位命令（desc，asc） 
+                     	type:$("#type").val() ,
+                     	action:$("#action").val() 
+		            };
+		           return temp;
+		     } 			 
+			     
+		 
+       });
+         
+         function  selectOnchang(){
+           	 $('#table_list').bootstrapTable("refresh");
+           	}
+         
+        function detailFormatter(index, row) {
+            var html = [];
+             if(row.id){
+       	        html.push('<p><b>ID:</b> ' + row.id + '</p>');
+            }
+            if(row.params){
+        	        html.push('<p><b>传递的参数:</b> ' + row.params + '</p>');
+            }
+            if(row.message){
+    	        html.push('<p><b>信息:</b> ' + row.message + '</p>');
+        	}
+           return html.join('');
+        }
+    </script>
+
+ 
+</body>
+
+</html>

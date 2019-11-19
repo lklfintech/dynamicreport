@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>组件类型操作</title>
+     <meta name="keywords" content="">
+    <meta name="description" content="">
+    <link rel="shortcut icon" href="favicon.ico">
+    <script type="text/javascript" src="../../assets/js/public_css.js"></script> 
+
+</head>
+
+<body class="gray-bg">
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-content">
+                    <form class="form-horizontal m-t" id="frm" method="post">
+                        <input type="hidden" id="id" name="id">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">KEY：</label>
+                            <div class="col-sm-8">
+                                <input id="key" name="key" class="form-control" type="text" required maxlength="30">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">名称：</label>
+                            <div class="col-sm-8">
+                                <input id="name" name="name" class="form-control" type="text" required maxlength="20">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">父类型：</label>
+                            <div class="col-sm-8">
+                                <input type="hidden" id="parent" name="parent">
+                                <input type="text" id="parentName" name="parentName" class="form-control" autocomplete="off"
+                                       onblur="setParentId()" onclick="$('#treeview').show()" placeholder="父类型">
+                                <div id="treeview" style="display: none;"></div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">备注：</label>
+                            <div class="col-sm-8">
+                                <textarea rows="6" id="remark" name="remark" class="form-control"
+                                          maxlength="500"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">排序：</label>
+                            <div class="col-sm-8">
+                                <input id="sequence" name="sequence" class="form-control" number="true" type="text" maxlength="9">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">状态：</label>
+                            <div class="col-sm-8">
+                                <select class="form-control" id="status" style="width:200px;height:35px" name="status"
+                                        required>
+                                    <option value="ACTIVE">启用</option>
+                                    <option value="INACTIVE">停用</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-8 col-sm-offset-3">
+                                <button class="btn btn-primary" id="submitBut" type="submit">提交</button>
+                                &nbsp;<button class="btn btn-primary" id="closeBut" onclick="closeChildWindow();"
+                                              type="button">取消
+                            </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+ 
+<script type="text/javascript" src="../../assets/js/public.js"></script>
+<script src="../../assets/js/plugins/treeview/bootstrap-treeview.js"></script>
+<script src="../../assets/js/plugins/treeview/dialogMsg.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var id = GetQueryString("id");
+        if (id) {
+            $.ajax({
+                type: "GET",
+                dataType: "json",
+                url: '../../cfg/component-type/list/' + id,
+                async: false,
+                success: function (data) {
+                    $('#frm').formEdit(data);
+                    if (null != data.parent) {
+                        $("#parentName").val(data.parent.name);
+                        $("#parent").val(data.parent.id);
+                    }
+                }
+            });
+        }
+        $("#frm").validate({
+            rules: {
+                id: {
+                    required: true,
+                    maxlength: 20
+                },
+                key: {
+                    required: true,
+                    maxlength: 30
+                },
+                name: {
+                    required: true,
+                    maxlength: 20
+                },
+                parent: {
+
+                    maxlength: 32
+                },
+                remark: {
+
+                    maxlength: 40
+                },
+            },
+            messages: {},
+            submitHandler: function (form) {
+                var requestType = "POST";
+                var url = "../../cfg/component-type/save";
+                if (id) {
+                    url = "../../cfg/component-type/update";
+                    requestType = "PUT";
+                }
+                $("#submitBut").attr("disabled", "disabled");
+                $.ajax({
+                    type: requestType,
+                    dataType: "json",
+                    url: url,
+                    data: $(form).serialize(),
+                    success: function (msg) {
+                        layer.msg(msg.msg, {time: 2000}, function () {
+                            if (msg.success) {
+                                var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+                                parent.layer.close(index);
+                            }
+                        });
+                    }
+                });
+            }
+        });
+        // 查询父类型
+        $.ajax({
+            type: "GET",
+            dataType: "json",
+            url: '../../cfg/component-type/tree-view',
+            async: false,
+            success: function (result) {
+                $("#treeview").treeview({
+                    data: result,
+                    levels: 1,
+                    highlightSelected: true,
+                    onNodeSelected: function (event, node) {
+                        $("#parentName").val(node.text);
+                        $("#parent").val(node.id);
+                        $("#treeview").hide();
+                    },
+                    showCheckbox: false//是否显示多选
+                });
+            }
+        });
+    });
+
+    function setParentId() {
+        var parent = $("#parentName").val();
+        if (parent == "" || parent == null) {
+            $("#parent").val("");
+        }
+    }
+</script>
+</body>
+</html>

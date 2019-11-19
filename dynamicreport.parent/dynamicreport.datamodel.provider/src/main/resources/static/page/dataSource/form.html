@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <title>数据源操作</title>
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+
+    <link rel="shortcut icon" href="favicon.ico"> 
+    <link href="../../assets/css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+    <link href="../../assets/css/font-awesome.css?v=4.4.0" rel="stylesheet">
+    <link href="../../assets/css/animate.css" rel="stylesheet">
+    <link href="../../assets/css/style.css?v=4.1.0" rel="stylesheet">
+
+</head>
+
+<body class="gray-bg">
+    <div class="wrapper wrapper-content animated fadeInRight">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-content">
+                        <form class="form-horizontal m-t" id="frm" method="post">
+                        	<input type="hidden" id="id" name="id">
+                            <div class="form-group"> 
+                                <label class="col-sm-3 control-label">唯一标识：</label>
+                                <div class="col-sm-8">
+                                    <input id="identifier" name="identifier" class="form-control alphanumeric" type="text" maxlength="100">
+                                </div>
+                            </div>
+                            <div class="form-group"> 
+                                <label class="col-sm-3 control-label">名称：</label>
+                                <div class="col-sm-8">
+                                    <input id="name" name="name" class="form-control" type="text" maxlength="100">
+                                </div>
+                            </div>
+                              <div class="form-group"> 
+                                <label class="col-sm-3 control-label">URL：</label>
+                                <div class="col-sm-8">
+                                    <input id="url" name="url" class="form-control" type="text" maxlength="500">
+                                </div>
+                            </div>
+                              <div class="form-group"> 
+                                <label class="col-sm-3 control-label">驱动：</label>
+                                <div class="col-sm-8">
+                                    <select class="form-control" id="driverClass"  name="driverClass" required>
+                                        <option value="">选择</option>
+                                        <option value="com.mysql.jdbc.Driver">MySQL驱动</option>
+                                        <option value="oracle.jdbc.driver.OracleDriver">Oracle驱动</option>
+                                        <option value="org.apache.hive.jdbc.HiveDriver">Hive驱动</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">Kerberos选项：</label>
+                                <div class="col-sm-8">
+                                    <select class="form-control" id="hiveKerberos"  name="hiveKerberos" required>
+                                        <option value="">请选择</option>
+                                        <option value="Y">Kerberos验证</option>
+                                        <option value="N">无Kerberos验证</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">HiveKrb5：</label>
+                                <div class="col-sm-8">
+                                    <input id="hiveKrb5" name="hiveKrb5" class="form-control" type="text" maxlength="100">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">HiveKeyTab：</label>
+                                <div class="col-sm-8">
+                                    <input id="hiveKeytab" name="hiveKeytab" class="form-control" type="text" maxlength="100">
+                                </div>
+                            </div>
+                             <div class="form-group"> 
+                                <label class="col-sm-3 control-label">用户名：</label>
+                                <div class="col-sm-8">
+                                    <input id="username" name="username" class="form-control" type="text" maxlength="50">
+                                </div>
+                            </div>
+                             <div class="form-group"> 
+                                <label class="col-sm-3 control-label">密码：</label>
+                                <div class="col-sm-8">
+                                    <input id="password" name="password" class="form-control" type="password" maxlength="64">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">描述：</label>
+                                <div class="col-sm-8">
+                                    <textarea rows="6" id="description" name="description" class="form-control" maxlength="500"></textarea>
+                                </div>
+                            </div>
+                              <div class="form-group"> 
+                                <label class="col-sm-3 control-label">状态：</label>
+                                <div class="col-sm-8">
+                                 <select class="form-control" id="status" style="width:200px;" name="status" required="" aria-required="true">
+									<option value="ACTIVE">启用</option>
+									<option value="INACTIVE">停用</option>
+								</select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-8 col-sm-offset-3">
+                                    <button class="btn btn-primary" type="submit">提交</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- 全局js -->
+    <script src="../../assets/js/jquery.min.js?v=2.1.4"></script>
+    <script src="../../assets/js/bootstrap.min.js?v=3.3.6"></script>
+
+    <!-- 自定义js -->
+    <script src="../../assets/js/content.js?v=1.0.0"></script>
+
+    <!-- jQuery Validation plugin javascript-->
+    <script src="../../assets/js/plugins/validate/jquery.validate.min.js"></script>
+    <script src="../../assets/js/plugins/validate/additional-methods.min.js"></script>
+    <script src="../../assets/js/plugins/validate/messages_zh.min.js"></script>
+    <script src="../../assets/js/plugins/layer/layer.min.js"></script>
+    <script src="../../assets/js/plugins/layer/laydate/laydate.js"></script>
+    <script src="../../assets/common/formUtils.js"></script>
+    <script type="text/javascript">
+    $(document).ready(function () {
+     
+	  	var id=GetQueryString("id");
+
+	  	if(id){
+	  		$("#identifier").attr("disabled","disabled");
+	  		$.ajax({
+    		   type: "GET",
+    		   dataType: "json",
+                async:false,
+    		   url: '../../data-source/list/'+id,
+    		   success: function(data){
+    			   $('#frm').formEdit(data);
+    		   }
+    		});
+	  	}
+
+	  	init();
+
+	    $("#frm").validate({
+    	    rules: {
+    	    	identifier: {
+    	        required: true,
+    	        minlength: 1,
+    	    	maxlength: 100
+    	      },name: {
+    	        required: true,
+    	        minlength: 1,
+    	    	maxlength: 100
+    	      },url: {
+	   	    	required: true,
+	      	    minlength: 1,
+	      	  	maxlength: 500
+    	      },driverClass: {
+    	        required: true,
+    	        minlength: 1,
+    	    	maxlength: 100
+    	      },username: {
+    	        required: true,
+    	        minlength: 1,
+    	    	maxlength: 50
+    	      },password: {
+    	        required: true,
+    	        minlength: 1,
+    	    	maxlength: 64
+    	      },description: {
+    	        required: false,
+    	    	maxlength: 500
+    	      }
+    	    },
+    	    messages: {},
+    	    submitHandler:function(form){
+    	    	var identifier=$('#identifier').val();
+    	    	var reg = /^[a-zA-Z].*$/;
+    	        if(!reg.test(identifier)){
+    	        	layer.msg('唯一标识必须以英文字母开头，只能包含英文字母、数字、下划线！', {time: 2000},function(){
+    	        		
+	   				});
+    	        	$('#identifier').focus();
+    	        	return;
+    	        }
+                var driverClass = $('#driverClass option:selected').val();
+    	        if(driverClass == ''){
+    	            alert('驱动类型必选，不可以为空！');
+                }
+                if('org.apache.hive.jdbc.HiveDriver' == driverClass){
+    	           if($("#hiveKerberos option:selected").val() == ''){
+    	               alert('驱动为HIVE时，hiveKerberos不可以为空！');
+                   }
+                    if($("#hiveKerberos option:selected").val() == 'Y'){
+    	               if($("#hiveKrb5").val() == '' || $("#hiveKeyTab").val() == ''){
+                           alert('驱动为HIVE、hiveKerberos验证时HiveKrb5、HiveKeyTab不可以为空！');
+                       }
+                    }
+                }
+    	    	$.ajax({
+   	    		   type: "POST",
+   	    		   dataType: "json",
+   	    		   url: "../../data-source/save-update",
+   	    		   data: $(form).serialize(),
+   	    		   success: function(msg){
+	   	    			layer.msg(msg.msg, {time: 2000},function(){
+	   	    				if(msg.success){
+		   						var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+		   						parent.layer.close(index); 
+	   	    				}
+	   					});
+   	    		   }
+   	    		});
+            } 
+    	});
+
+        $('#driverClass').change(function(){
+            init();
+        });
+
+        $('#hiveKerberos').change(function(){
+            init();
+        });
+    });
+
+    function init(){
+        var driverClass = $('#driverClass option:selected').val();
+        if("org.apache.hive.jdbc.HiveDriver" != driverClass){
+            $("#hiveKerberos").parent().parent().hide();
+            $("#hiveKrb5").parent().parent().hide();
+            $("#hiveKeytab").parent().parent().hide();
+        }else{
+            $("#hiveKerberos").parent().parent().show();
+            $("#password").parent().parent().hide();
+            if($("#hiveKerberos option:selected").val() == 'Y'){
+                $("#hiveKrb5").parent().parent().show();
+                $("#hiveKeytab").parent().parent().show();
+            }else{
+                $("#hiveKrb5").parent().parent().hide();
+                $("#hiveKeytab").parent().parent().hide();
+            }
+        }
+    }
+    </script>
+
+</body>
+
+</html>

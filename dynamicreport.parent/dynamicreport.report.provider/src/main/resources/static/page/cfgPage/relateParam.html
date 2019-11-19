@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>报表参数列表</title>
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+    <link rel="shortcut icon" href="favicon.ico"> 
+    <link href="../../assets/css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+    <link href="../../assets/css/font-awesome.css?v=4.4.0" rel="stylesheet">
+    <link href="../../assets/css/plugins/bootstrap-table/bootstrap-table.min.css" rel="stylesheet">
+    <link href="../../assets/css/animate.css" rel="stylesheet">
+    <link href="../../assets/css/bootstrap-editable.css" rel="stylesheet" />
+    <link href="../../assets/css/style.css?v=4.1.0" rel="stylesheet">
+    <link href="../../assets/css/bootstrap-table-reorder-rows.css" rel="stylesheet">
+    
+</head>
+
+<body class="gray-bg">
+    <div class="wrapper wrapper-content  animated fadeInRight">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="ibox ">
+                    <div class="ibox-content">
+                    	<form class="form-horizontal m-t" id="frm" method="post">
+                        <div class="row row-lg">
+		                    <div class="col-sm-12">
+		                        <!-- Example Card View -->
+		                        <div class="example-wrap">
+		                            <div class="example">
+		                            	<table id="table_list" data-use-row-attr-func="true" data-reorderable-rows="true" data-mobile-responsive="true" style="table-layout: fixed;word-break:break-all; word-wrap:break-all;"></table>
+										<!--<table id="table_list" data-mobile-responsive="true" style="table-layout: fixed;word-break:break-all; word-wrap:break-all;"></table> -->
+		                            </div>
+		                        </div>
+		                    </div>
+	                    </div>
+	                    <br>
+ 						</form>
+ 						<div class="form-group">
+                            <div class="col-sm-12">
+                                <button class="btn btn-primary"  id="submitBut"  type="submit" onclick="submit();">提交</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+
+    <!-- 全局js -->
+    <script src="../../assets/js/jquery.min.js?v=2.1.4"></script>
+    <script src="../../assets/js/bootstrap.min.js?v=3.3.6"></script>
+	<!-- Bootstrap table -->
+    <script src="../../assets/js/plugins/bootstrap-table/bootstrap-table.min.js"></script>
+    <script src="../../assets/js/plugins/bootstrap-table/bootstrap-table-mobile.min.js"></script>
+    <script src="../../assets/js/plugins/bootstrap-table/locale/bootstrap-table-zh-CN.min.js"></script>
+    <script src="../../assets/common/PermissionUtils.js"></script>
+    <!-- Peity -->
+    <script src="../../assets/js/plugins/peity/jquery.peity.min.js"></script>
+    <script src="../../assets/js/plugins/layer/layer.min.js"></script>
+    <script src="../../assets/js/plugins/treeview/dialogMsg.js"></script>
+	<script type="text/javascript" src="../../assets/js/plugins/bootstrap-dialog/bootstrap-dialog.min.js"></script>
+    <!-- 自定义js -->
+    <script src="../../assets/js/content.js?v=1.0.0"></script>
+	<script type="text/javascript" src="../../assets/js/public.js"></script>
+	
+    <script src="../../assets/js/bootstrap-editable.js"></script>
+    <script src="../../assets/js/bootstrap-table-editable.js"></script>
+    
+    <script src="../../assets/js/bootstrap-table-reorder-rows.js"></script>
+    <script src="../../assets/js/jquery.tablednd.js"></script>
+    
+    <!-- Page-Level Scripts -->
+    <script>
+        $(document).ready(function () {
+        	var id=GetQueryString("id");
+			//初始化表格,动态从服务器加载数据  
+			$("#table_list").bootstrapTable({
+			    //使用get请求到服务器获取数据  
+			    method: "GET",
+			    //必须设置，不然request.getParameter获取不到请求参数
+			    contentType: "application/json",
+			    //获取数据的Servlet地址  
+			    url: "../../cfg/param/realte-param?page="+id,
+			    //表格显示条纹  
+			    striped: true,
+			    showRefresh: true,
+			    //启动分页  
+			    pagination: false,
+			    //每页显示的记录数  
+			    pageSize: 10,
+			    //当前第几页  
+			    pageNumber: 1,
+			    //记录数可选列表  
+			    pageList: [5, 10, 15, 20, 25],
+			    //是否启用查询  
+			    search: true,
+			    //是否启用详细信息视图
+			    detailView:true,
+			    detailFormatter:detailFormatter,
+			    //表示服务端请求  
+			    sidePagination: "server",
+			    //设置为undefined可以获取pageNumber，pageSize，searchText，sortName，sortOrder  
+			    //设置为limit可以获取limit, offset, search, sort, order  
+			    queryParamsType: "undefined",
+			    //json数据解析
+			    responseHandler: function(res) {
+			        return {
+			            "rows": res
+			        };
+			    },
+			    //数据列
+			    columns: [
+				{
+				    title: "选择",
+				    checkbox:true,
+				    formatter : stateFormatter,
+				    width:20
+				},
+		    	{
+			        title: "类型",
+			        field: "type.name",
+			        sortable: true,
+			        width:72
+			    },
+		    	{
+			        title: "类型",
+			        field: "type.name",
+			        sortable: true,
+			        width:72
+			    },
+			    {
+			        title: "标识",
+			        field: "paramName",
+			        sortable: true,
+			        width:80
+			    },
+		    	{
+			        title: "名称",
+			        field: "name",
+			        sortable: true,
+			        width:80
+			    },
+		    	{
+			        title: "标签",
+			        field: "label",
+			        sortable: true,
+			        width:60
+			    },
+		    	{
+			        title: "长度",
+			        field: "len",
+			        sortable: true,
+			        width:35
+			    },
+			    {
+			        title: "排序",
+			        field: "sequence",
+			        sortable: true,
+			        width:35
+			    },
+		    	{
+			        title: "格式",
+			        field: "format",
+			        sortable: true,
+			        width:60
+			    },{
+                    title: "默认值",
+                    field: "paramValue",
+                    width: 50,
+                    editable:{
+                    	type: 'select',
+                        source: [{value: "", text: ""},
+           	                   	 {value: "PARAM_VALUE_TODAY", text: "当天"}, 
+                                 {value: "PARAM_VALUE_3_DAYS_AGO", text: "3天前"},
+                                 {value: "PARAM_VALUE_4_DAYS_AGO", text: "4天前"},
+                                 {value: "PARAM_VALUE_7_DAYS_AGO", text: "7天前"},
+                                 {value: "PARAM_VALUE_15_DAYS_AGO", text: "15天前"},
+                                 {value: "PARAM_VALUE_A_MONTH_AGO", text: "1个月前"},
+                                 {value: "PARAM_VALUE_3_MONTHS_AGO", text: "3个月前"},
+                                 {value: "PARAM_VALUE_6_MONTHS_AGO", text: "6个月前"},
+                                 {value: "PARAM_VALUE_9_MONTHS_AGO", text: "9个月前"},
+                                 {value: "PARAM_VALUE_12_MONTHS_AGO", text: "12个月前"}]
+                    }
+                },
+			    {
+			        title: "必输",
+			        sortable: true,
+			        field: "required",
+			        width:40,
+                    formatter: function (value, row, index) {
+                    	if(value == 'Y')
+                    		return '<span class="label label-info">是</span>';
+                    	else if(value == 'N')
+                    		return '<span class="label label-danger">否</span>';
+                    }
+			    }]
+			});
+        });
+	    function submit() {
+        	var id=GetQueryString("id");
+
+  	    	//获取所有被选中的记录
+  	    	var rows = $("#table_list").bootstrapTable('getSelections');
+  	    	 
+   	        var ids = '';
+   	     	var vos=[];
+   	        for (var i = 0; i < rows.length; i++) {
+   	            ids += rows[i]['id'] + ",";
+   	        }
+   	        if(ids!=''){
+   	        	ids = ids.substring(0, ids.length - 1);
+   	        }
+   	        var allData=$("#table_list").bootstrapTable('getData');
+   	        var allIds = '';
+   	        
+   	        var seq=1;
+   	        for (var i = 0; i < allData.length; i++) {
+   	        	if(!allData[i]){
+   	        		continue;
+   	        	}
+   	        	allIds += allData[i]['id'] + ",";
+   	        	
+   	        	if(ids.indexOf(allData[i]['id'])>-1){
+   	        		vos.push({
+	   		             id:allData[i]['id'],
+	   		             paramValue:allData[i]['paramValue'],
+	   		             sequence:seq++,
+   	           		});
+   	        	}
+   	        	
+   	        }
+   	        if(allIds!=''){
+       	        allIds = allIds.substring(0, allIds.length - 1);
+   	        }
+  	    	$.ajax({
+ 	    		   type: "POST",
+ 	    		   dataType: "json",
+ 	    		   url: "../../cfg/param/save-params",
+ 	    		   data: {id:id,ids:ids,vos:JSON.stringify(vos),allIds:allIds},
+ 	    		   success: function(msg){
+	  	    			layer.msg(msg.msg, {time: 2000});
+	  	    			$("#table_list").bootstrapTable('refresh');
+ 	    		   }
+ 	    		});
+         }
+       
+        function detailFormatter(index, row) {
+	        var html = [];
+	        if(row.id){
+		        html.push('<p><b>ID:</b> ' + row.id + '</p>');
+		     }
+	        if(row.dataList){
+		        html.push('<p><b>数据集:</b> ' + row.dataList.name + '</p>');
+		     }
+	    	 if(row.createdDate){
+		        html.push('<p><b>创建日期:</b> ' + row.createdDate + '</p>');
+		     }
+	        if(row.createdUser){
+		        html.push('<p><b>创建人:</b> ' + row.createdUser + '</p>');
+		    }
+	        if(row.modifiedDate){
+		        html.push('<p><b>修改日期:</b> ' + row.modifiedDate + '</p>');
+		    }
+	        if(row.modifiedUser){
+		        html.push('<p><b>修改人:</b> ' + row.modifiedUser + '</p>');
+		    }
+	        return html.join('');
+	    }
+       
+        
+    </script>
+
+       
+    
+
+</body>
+
+</html>

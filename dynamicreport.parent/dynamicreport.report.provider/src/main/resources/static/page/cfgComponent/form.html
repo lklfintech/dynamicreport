@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>组件配置操作</title>
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+    <link rel="shortcut icon" href="favicon.ico">
+    <link href="../../assets/css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+    <link href="../../assets/css/font-awesome.css?v=4.4.0" rel="stylesheet">
+    <link href="../../assets/css/animate.css" rel="stylesheet">
+    <link href="../../assets/css/bootstrap-editable.css" rel="stylesheet"/>
+    <link href="../../assets/css/style.css?v=4.1.0" rel="stylesheet">
+    <link href="../../assets/css/common.css" rel="stylesheet">
+    <link href="../../assets/css/bootstrap-table-reorder-rows.css" rel="stylesheet">
+    <link href="../../assets/css/switch-custom.css" rel="stylesheet">
+    <link href="../../assets/css/bootstrap-select.min.css" rel="stylesheet">
+</head>
+
+<body class="gray-bg">
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-content">
+                    <form class="form-horizontal m-t" id="frm" method="post">
+                        <input type="hidden" id="id" name="id">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">名称：</label>
+                            <div class="col-sm-8">
+                                <input id="name" name="name" class="form-control" type="text" required maxlength="40">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">类型：</label>
+                            <div class="col-sm-4">
+                                <select class="form-control" id="type" name="type.id" onchange="showTypeNotice()">
+                                </select>
+                            </div>
+                            <div id="typeNotice"></div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">模板：</label>
+                            <div class="col-sm-4">
+                                <select class="form-control" id="cfgChartTemplate" name="cfgChartTemplate.id">
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">数据集：</label>
+                            <div class="col-sm-4">
+                                <select class="form-control" id="dataList" name="dataList.id" data-live-search="true">
+                                </select>
+                            </div>
+                            <div class="col-sm-4">
+                                <button class="btn btn-primary" id="queryBut" onclick="clickQueryComponentColumns();"
+                                        type="button">查询
+                                </button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">列固定：</label>
+                            <div class="col-sm-8">
+                                <input id="fixedCol" name="fixedCol" class="form-control" type="text" required
+                                       maxlength="2">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">分页：</label>
+                            <div class="col-sm-4">
+                                <select class="form-control" id="pagination" name="pagination" required>
+                                    <option value="Y">分页</option>
+                                    <option value="N">不分页</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">备注：</label>
+                            <div class="col-sm-8">
+                                <textarea id="remark" name="remark" class="form-control" maxlength="200"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">状态：</label>
+                            <div class="col-sm-4">
+                                <select class="form-control" id="status" name="status" required>
+                                    <option value="ACTIVE">启用</option>
+                                    <option value="INACTIVE">停用</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row row-lg" id="divTableList">
+                            <div class="col-sm-12">
+                                <div class="example-wrap">
+                                    <div class="example">
+                                        <table id="table_list" data-use-row-attr-func="true"
+                                               data-reorderable-rows="true" data-mobile-responsive="true"
+                                               style="table-layout: fixed;word-break:break-all; word-wrap:break-all;"></table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </form>
+                    <div class="form-group">
+                        <div class="col-sm-8 col-sm-offset-3">
+                            <button class="btn btn-primary" onclick="showCreateModal();">增加行</button>
+                            &nbsp;
+                            <button class="btn btn-primary" id="submitBut" type="submit" onclick="submit();">提交</button>
+                            &nbsp;
+                            <button class="btn btn-primary" id="closeBut" onclick="closeChildWindow();" type="button">
+                                取消
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="modal fade" id="inputModal" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <label for="inputName" class="col-form-label">列名</label>
+                        <textarea rows="6" id="inputName" name="inputName" class="form-control"
+                                  maxlength="500"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="inputModalBut">确定</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="myModal" class="modal fade" data-keyboard="false"
+     data-backdrop="static" data-role="dialog"
+     aria-labelledby="myModalLabel" aria-hidden="true">
+    <div id="loading" class="loading">处理中......&nbsp;</div>
+</div>
+
+<!-- 全局js -->
+<script src="../../assets/js/jquery.min.js?v=2.1.4"></script>
+<script src="../../assets/js/bootstrap.min.js?v=3.3.6"></script>
+
+<!-- 自定义js -->
+<script src="../../assets/js/content.js?v=1.0.0"></script>
+
+<!-- jQuery Validation plugin javascript-->
+<script src="../../assets/js/plugins/validate/jquery.validate.min.js"></script>
+<script src="../../assets/js/plugins/validate/additional-methods.min.js"></script>
+<script src="../../assets/js/plugins/validate/messages_zh.min.js"></script>
+<script src="../../assets/js/plugins/layer/layer.min.js"></script>
+<script src="../../assets/js/plugins/layer/laydate/laydate.js"></script>
+<script src="../../assets/common/formUtils.js"></script>
+
+<script src="../../assets/js/plugins/bootstrap-table/bootstrap-table.min.js"></script>
+<script src="../../assets/js/plugins/bootstrap-table/bootstrap-table-mobile.min.js"></script>
+<script src="../../assets/js/bootstrap-editable.js"></script>
+<script src="../../assets/js/bootstrap-table-editable.js"></script>
+<script src="../../assets/js/plugins/treeview/bootstrap-treeview.js"></script>
+<script src="../../assets/js/bootstrap-select.min.js"></script>
+
+<script src="../../assets/js/bootstrap-table-reorder-rows.js"></script>
+<script src="../../assets/js/jquery.tablednd.js"></script>
+
+<script src="../../assets/js/plugins/treeview/dialogMsg.js"></script>
+<script src="../../assets/js/plugins/bootstrap-dialog/bootstrap-dialog.min.js"></script>
+<script src="../../assets/common/PermissionUtils.js"></script>
+<script src="../../assets/js/plugins/bootstrap-table/locale/bootstrap-table-zh-CN.min.js"></script>
+
+<script type="text/javascript">
+    var flag = false;
+    var jsonStr;
+    var id = GetQueryString("id");
+    $(document).ready(function () {
+        $.ajax({
+            type: 'GET',
+            url: '../../cfg/component-type/list-all?parentKey=TYPE_COMPONENT',
+            dataType: 'json',
+            async: false,
+            success: function (data) {
+                var len = data.length;
+                $("#type").find('option').remove();
+                $("#type").append($('<option value=\'\'>' + "---请选择---" + '</option>'));
+                for (i = 0; i < len; i++) {
+                    $("#type").append($('<option value=' + data[i].id + '>' + data[i].name + '</option>'));
+                }
+            }
+        });
+        $("#type").change(function () {
+            initColumn();
+        });
+
+        $.ajax({
+            type: 'GET',
+            url: '../../cfg/chart-template/list-all',
+            dataType: 'json',
+            async: false,
+            success: function (data) {
+                var len = data.length;
+                $("#cfgChartTemplate").find('option').remove();
+                $("#cfgChartTemplate").append($('<option value=\'\'>' + "---请选择---" + '</option>'));
+                for (i = 0; i < len; i++) {
+                    $("#cfgChartTemplate").append($('<option value=' + data[i].id + '>' + data[i].name + '</option>'));
+                }
+            }
+        });
+        $.ajax({
+            type: 'GET',
+            url: '../../data-list/list-all',
+            dataType: 'json',
+            async: false,
+            success: function (data) {
+                var len = data.length;
+                $("#dataList").find('option').remove();
+                $("#dataList").append($('<option value=\'\'>' + "---请选择---" + '</option>'));
+                for (i = 0; i < len; i++) {
+                    $("#dataList").append($('<option value=' + data[i].id + '>' + data[i].name + '</option>'));
+                }
+                $("#dataList").selectpicker('refresh');
+            }
+        });
+        if (id) {
+            $.ajax({
+                type: "GET",
+                dataType: "json",
+                async: false,
+                url: '../../cfg/component/list/' + id,
+                success: function (data) {
+                    $('#frm').formEdit(data);
+                    $("#type option").each(function () {
+                        if ($(this)[0].value == data.type.id) {
+                            $(this).attr("selected", "selected");
+                        }
+                    });
+
+                    if (data.cfgChartTemplate) {
+                        $("#cfgChartTemplate option").each(function () {
+                            if ($(this)[0].value == data.cfgChartTemplate.id) {
+                                $(this).attr("selected", "selected");
+                            }
+                        });
+                    }
+                    if (data.dataList) {
+                        $('#dataList').selectpicker('val', data.dataList.id);
+                    }
+                }
+            });
+            queryComponentColumns(id);
+        }
+        initColumn();
+    });
+
+    function initColumn() {
+        //类型下拉框
+        var type = $('#type option:selected').text();
+        if (type.indexOf("图") > 0) {
+            $('#fixedCol').parent().parent().hide();
+            $('#pagination').parent().parent().hide();
+            $('#cfgChartTemplate').parent().parent().show();
+            // $('#table_list').bootstrapTable('hideColumn', 'name');
+            $('#table_list').bootstrapTable('hideColumn', 'groupId');
+            $('#table_list').bootstrapTable('hideColumn', 'rowMerge');
+            $('#table_list').bootstrapTable('hideColumn', 'rowSummary');
+            $('#table_list').bootstrapTable('hideColumn', 'privot');
+            $('#table_list').bootstrapTable('hideColumn', 'privotSelected');
+        } else if (type.indexOf("表格") > 0) {
+            $('#cfgChartTemplate').parent().parent().hide();
+            // $('#table_list').bootstrapTable('showColumn', 'name');
+            $('#table_list').bootstrapTable('showColumn', 'groupId');
+            $('#table_list').bootstrapTable('showColumn', 'rowMerge');
+            if (type.indexOf("聚合") > -1) {
+                $('#table_list').bootstrapTable('showColumn', 'rowSummary');
+            } else {
+                $('#table_list').bootstrapTable('hideColumn', 'rowSummary');
+            }
+            $('#table_list').bootstrapTable('showColumn', 'privot');
+            $('#table_list').bootstrapTable('showColumn', 'privotSelected');
+            $('#fixedCol').parent().parent().show();
+            $('#pagination').parent().parent().show();
+        }
+    }
+
+    function showTypeNotice() {
+        var type = $("#type").find("option:selected").text();
+        if(type == "透视表格"){
+            $("#typeNotice").html("透视表格组件，必须最少一个指标和一个维度选择了透视！");
+        }
+    }
+    function submit() {
+
+        if (!flag) {
+            layer.msg("请查询数据集");
+            return;
+        }
+        if($("#name").val() == null||$("#name").val()==undefined||$("#name").val()==""){
+            layer.msg("组件名称不可以为空！");
+            return;
+        }
+        var requestType = "POST";
+        var url = "../../cfg/component/save";
+        if (id) {
+            url = "../../cfg/component/update";
+            requestType = "PUT";
+        }
+        // 验证维度和指标
+        var allTableData = $("#table_list").bootstrapTable('getData');
+
+        var newData = [];
+        for (var i = 0; i < allTableData.length; i++) {
+            var tableData = allTableData[i];
+            if (!tableData) {
+                continue;
+            }
+            tableData.sequence = i + 1;
+
+            if ($("#table_list tbody").find('tr').eq(i).find('td').find('button').parent().find('div').eq(0).text() != '') {
+                var pageId = $("#table_list tbody").find('tr').eq(i).find('td').eq(7).find('div').eq(0).text();
+                var drillParamList = $.parseJSON($("#table_list tbody").find('tr').eq(i).find('td').eq(7).find('div').eq(1).text());
+                var page = $.parseJSON('{"id":"' + pageId + '"}');
+                tableData.page = page;
+                tableData.drillParamList = drillParamList;
+            } else {
+                tableData.page = $.parseJSON('{"id":""}');
+                tableData.drillParamList = null;
+            }
+            newData.push(tableData);
+        }
+        jsonStr = JSON.stringify(newData);
+
+        $('#myModal').modal('show');
+
+        $.ajax({
+            type: requestType,
+            dataType: "json",
+            async: false,
+            url: url,
+            data: {
+                "component": JSON.stringify($('form').serializeObject()),
+                "componentColumns": jsonStr
+            },
+            success: function (msg) {
+                // $('#myModal').modal('hide');
+                // layer.msg(msg.msg, {time: 2000});
+                // if (msg.success) {
+                //     var id = GetQueryString("id");
+                //     queryComponentColumns(id);
+                //     initColumn();
+                // }
+                layer.msg(msg.msg, {time: 2000}, function () {
+                    if (msg.success) {
+                        var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+                        parent.layer.close(index);
+                    }
+                });
+            }
+        });
+    }
+
+    function clickQueryComponentColumns() {
+
+        var id = GetQueryString("id");
+
+        //表格是否被修改过
+        var tableStr = JSON.stringify($('#table_list').bootstrapTable('getData'));
+        if (jsonStr && jsonStr != 'null' && tableStr != jsonStr) {
+            layer.confirm('数据未保存,确定重新查询?', {icon: 3, title: '提示'}, function (index) {
+                queryComponentColumns(id, 'click');
+                layer.close(index);
+            });
+        } else {
+            queryComponentColumns(id, 'click');
+        }
+    }
+
+
+    // 点击查询按钮
+    function queryComponentColumns(id, isClick) {
+        flag = true;//加载表格
+        if ('click' != isClick) {
+            var url = "../../cfg/component/columns/" + id + "/query";
+            showColumnTable(url);
+        } else {
+            var dataList = $('#dataList').val();
+            if (null == dataList || '' == dataList) {
+                layer.msg("请选择数据集！", {time: 2000});
+                return;
+            }
+            var url = "../../cfg/component/columns/init?dataListId=" + dataList + '&id=' + id;
+            showColumnTable(url);
+        }
+        initColumn();
+    }
+
+    //　显示维度指标定义列表
+    function showColumnTable(url) {
+        var datas;
+        $.ajax({
+            url: "../../cfg/component-col-group/list-all",
+            async: false,
+            type: "get",
+            success: function (data, status) {
+                datas = data;
+            }
+        });
+
+        $("#table_list").bootstrapTable('destroy');
+        $("#table_list").bootstrapTable({
+            //使用get请求到服务器获取数据
+            method: "GET",
+            //必须设置，不然request.getParameter获取不到请求参数
+            contentType: "application/json",
+            //获取数据的Servlet地址
+            url: url,
+            //表格显示条纹
+            striped: true,
+            //启动分页
+            pagination: false,
+            //是否启用查询
+            search: false,
+            //是否启用详细信息视图
+            detailView: false,
+            //表示服务端请求
+            sidePagination: "server",
+            //设置为undefined可以获取pageNumber，pageSize，searchText，sortName，sortOrder
+            //设置为limit可以获取limit, offset, search, sort, order
+            queryParamsType: "undefined",
+
+            //json数据解析
+            responseHandler: function (res) {
+                if (!res.success) {
+                    layer.msg(res.msg, {time: 2000});
+                }
+
+                jsonStr = JSON.stringify(res.obj);
+
+                return {
+                    "rows": res.obj
+                };
+            },
+            //数据列
+            columns: [
+                {
+                    title: "列名",
+                    field: "colName",
+                    width: "80"
+                }, {
+                    title: "别名",
+                    field: "alias",
+                    width: "80",
+                    editable: {
+                        type: 'text',
+                        emptytext: '点我填写'
+                    },
+                    formatter: function (value, row, index) {
+                        if (value)
+                            return value;
+                        else
+                            return '';
+                    }
+                }, {
+                    title: "函数",
+                    field: "func",
+                    width: "80",
+                    editable: {
+                        type: 'select',
+                        emptytext: '点我选择',
+                        title: '函数',
+                        source: function () {
+                            var result = [];
+                            result.push({value: '', text: ''})
+                            result.push({value: 'sum', text: '求和'});
+                            result.push({value: 'count', text: '统计'});
+                            result.push({value: 'avg', text: '平均'});
+                            result.push({value: 'max', text: '最大'});
+                            result.push({value: 'min', text: '最小'});
+                            return result;
+                        }
+                    },
+                    formatter: function (value, row, index) {
+                        if (value)
+                            return value;
+                        else
+                            return '';
+                    }
+                }, {
+                    title: "类型",
+                    field: "type",
+                    width: 60,
+                    formatter: function (value, row, index) {
+                        var ischeck = '';
+                        if ('TGT' == value) {
+                            row.type = 'TGT';
+                            ischeck = 'checked';
+                        } else {
+                            row.type = 'DIM';
+                        }
+                        return '<input type="checkbox" ' + ischeck + ' id="type' + row.colName + '" onclick=typeClick(this,"' + row.colName + '"); class="type_switch"><label for="type' + row.colName + '"></label>';
+                    }
+                }, {
+                    title: "中文名称",
+                    field: "name",
+                    width: "80",
+                    editable: {
+                        type: 'text'
+                    },
+                    formatter: function (value, row, index) {
+                        if (value)
+                            return value;
+                        else
+                            return '';
+                    }
+                }, {
+                    title: "长度",
+                    field: "len",
+                    width: 40,
+                    editable: {
+                        type: 'text'
+                    }
+                }, {
+                    title: "顺序",
+                    field: "sequence",
+                    width: 40
+                }, {
+                    field: 'tableId',
+                    align: 'center',
+                    title: '下钻表',
+                    width: 60,
+                    formatter: function (value, row, index) {
+                        var option = '<button class="btn btn-primary btn-xs" type="button" onclick="relations(' + index + ',\'' + row.id + '\')">';
+                        if (row.page != null) {
+                            option = option + '<i class="fa fa-edit"></i>已映射</button><div hidden>' + row.page.id + '</div>';
+                        } else {
+                            option = option + '<i class="fa fa-edit"></i>未映射</button><div hidden></div>';
+                        }
+                        if (row.drillParamList != null) {
+                            option = option + '<div hidden>' + JSON.stringify(row.drillParamList) + '</div>';
+                        } else {
+                            option = option + '<div hidden></div>';
+                        }
+                        return option;
+                    }
+                }, {
+                    title: "列合并",
+                    field: "groupId",
+                    width: 70,
+                    editable: {
+                        type: 'select',
+                        emptytext: '点我选择',
+                        title: '列合并',
+                        source: function () {
+                            var result = [];
+                            result.push({value: '', text: ''})
+                            $.each(datas, function (key, val) {
+                                result.push({value: val.id, text: val.name});
+                            });
+                            return result;
+                        }
+                    },
+                    formatter: function (value, row, index) {
+                        if (value)
+                            return value;
+                        else
+                            return "";
+                    }
+                }, {
+                    title: "行合并",
+                    field: "rowMerge",
+                    width: 60,
+                    formatter: function (value, row, index) {
+                        var ischeck = '';
+                        if ('Y' == value) {
+                            row.rowMerge = 'Y';
+                            ischeck = 'checked';
+                        }
+
+                        return '<input type="checkbox" ' + ischeck + ' id="rowMerge' + row.colName + '" onclick=rowClick(this,"' + row.colName + '"); class="Y_N_switch"><label for="rowMerge' + row.colName + '"></label>';
+
+                    }
+                }, {
+                    title: "选中",
+                    field: "selected",
+                    width: 60,
+                    formatter: function (value, row, index) {
+
+                        var ischeck = '';
+                        if ('Y' == value) {
+                            row.selected = 'Y';
+                            ischeck = 'checked';
+                        }
+                        return '<input type="checkbox" ' + ischeck + ' id="selected' + row.colName + '" onclick=selectClick(this,"' + row.colName + '"); class="Y_N_switch"><label for="selected' + row.colName + '"></label>';
+                    }
+                }, {
+                    title: "行小计",
+                    field: "rowSummary",
+                    width: 60,
+                    formatter: function (value, row, index) {
+
+                        var ischeck = '';
+                        if ('Y' == value) {
+                            row.selected = 'Y';
+                            ischeck = 'checked';
+                        }
+                        return '<input type="checkbox" ' + ischeck + ' id="selected' + row.colName + '" onclick=selectClick(this,"' + row.colName + '"); class="Y_N_switch"><label for="selected' + row.colName + '"></label>';
+                    }
+                }, {
+                    title: "透视",
+                    field: "privot",
+                    width: 60,
+                    formatter: function (value, row, index) {
+                        var ischeck = '';
+                        if ('Y' == value) {
+                            row.privot = 'Y';
+                            ischeck = 'checked';
+                        }
+                        return '<input type="checkbox" ' + ischeck + ' id="privot' + row.colName + '" onclick=privotClick(this,"' + row.colName + '"); class="Y_N_switch"><label for="privot' + row.colName + '"></label>';
+
+                    }
+                }, {
+                    title: "透视选择",
+                    field: "privotSelected",
+                    width: 70,
+                    formatter: function (value, row, index) {
+                        var ischeck = '';
+                        if ('Y' == value) {
+                            row.privotSelected = 'Y';
+                            ischeck = 'checked';
+                        }
+
+                        return '<input type="checkbox" ' + ischeck + ' id="privotSelected' + row.colName + '" onclick=privotSelectedClick(this,"' + row.colName + '"); class="Y_N_switch"><label for="privotSelected' + row.colName + '"></label>';
+
+                    }
+                },
+                {
+                    title: "删除",
+                    width: 50,
+                    formatter: function (value, row, index) {
+                        return '<button class="btn btn-danger btn-xs" type="button" onclick="delRow(\'' + row.colName + '\')"><i class="fa fa-remove"></i>&nbsp;删除</button> &nbsp;';
+                    }
+                }
+            ]
+        });
+    }
+
+    function typeClick(component, colName) {
+
+        var allTableData = $("#table_list").bootstrapTable('getData');
+        var res = "DIM"
+        for (var i = 0; i < allTableData.length; i++) {
+            if (colName == allTableData[i].colName) {
+                var func = allTableData[i].func;
+                if (component.checked) {
+                    res = "TGT";
+                    if (func == '' || func == null) {
+                        func = 'sum';
+                    }
+                } else {
+                    func = '';
+                }
+                $("#table_list").bootstrapTable('updateRow', {
+                    index: i,
+                    row: {
+                        type: res,
+                        func: func
+                    }
+                });
+            }
+        }
+    }
+
+    function rowClick(component, colName) {
+        var allTableData = $("#table_list").bootstrapTable('getData');
+        var res = "N"
+        if (component.checked) {
+            res = "Y";
+        }
+        for (var i = 0; i < allTableData.length; i++) {
+            if (colName == allTableData[i].colName) {
+                $("#table_list").bootstrapTable('updateRow', {
+                    index: i,
+                    row: {
+                        rowMerge: res
+                    }
+                });
+            }
+        }
+    }
+
+    function selectClick(component, colName) {
+        var allTableData = $("#table_list").bootstrapTable('getData');
+        var res = "N"
+        if (component.checked) {
+            res = "Y";
+        }
+        for (var i = 0; i < allTableData.length; i++) {
+            if (colName == allTableData[i].colName) {
+                $("#table_list").bootstrapTable('updateRow', {
+                    index: i,
+                    row: {
+                        selected: res
+                    }
+                });
+            }
+        }
+    }
+
+    function privotClick(component, colName) {
+        var allTableData = $("#table_list").bootstrapTable('getData');
+        var res = "N"
+        if (component.checked) {
+            res = "Y";
+        }
+        for (var i = 0; i < allTableData.length; i++) {
+            if (colName == allTableData[i].colName) {
+                $("#table_list").bootstrapTable('updateRow', {
+                    index: i,
+                    row: {
+                        privot: res
+                    }
+                });
+            }
+        }
+    }
+
+    function privotSelectedClick(component, colName) {
+        var allTableData = $("#table_list").bootstrapTable('getData');
+        var res = "N"
+        if (component.checked) {
+            res = "Y";
+        }
+        for (var i = 0; i < allTableData.length; i++) {
+            if (colName == allTableData[i].colName) {
+                $("#table_list").bootstrapTable('updateRow', {
+                    index: i,
+                    row: {
+                        privotSelected: res
+                    }
+                });
+            }
+        }
+    }
+
+    function delRow(colName) {
+        $('#table_list').bootstrapTable('remove', {field: "colName", values: [colName]});
+    }
+
+    function showCreateModal() {
+        $('#inputModal').modal('show');
+        $("#inputName").val("");
+    }
+
+    $("#inputModalBut").click(function () {
+        $("#inputModal").modal("hide");
+        var inputName = $("#inputName").val();
+        var count = $('#table_list').bootstrapTable('getData').length;
+        $('#table_list').bootstrapTable('insertRow', {
+            index: count,
+            row: {colName: inputName, alias: inputName, name: inputName, len: 100, type: 'TGT', func: 'sum'}
+        });
+
+    });
+
+    function relations(rowId, colId) {
+        //循环所有行获取列
+        var columnNames = new Array();
+        $("#table_list tbody tr").each(function (e) {
+            columnNames.push($(this).children("td:first").text());
+        });
+        var pageId = $("#table_list tbody").find('tr').eq(rowId).find('td').find('button').parent().find('div').eq(0).text();
+        var relations = $("#table_list tbody").find('tr').eq(rowId).find('td').find('button').parent().find('div').eq(1).text();
+        var layerEdit = layer.open({
+            type: 2,
+            title: '映射配置修改',
+            shadeClose: true,
+            maxmin: true,//最大化按钮
+            anim: 3,//动画
+            shade: [0.8, '#393D49'],//遮罩层
+            area: ['893px', '500px'],
+            content: 'relations.html?columnNames=' + columnNames + "&rowId=" + rowId + "&colId=" + colId + "&pageId=" + pageId + "&relations=" + escape(JSON.stringify(relations)),
+            end: function (index) {
+            }
+        });
+        layer.full(layerEdit);
+
+    }
+
+</script>
+
+</body>
+
+</html>

@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <title>数据参数组列表</title>
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+
+    <link rel="shortcut icon" href="favicon.ico"> 
+    <link href="../../assets/css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+    <link href="../../assets/css/font-awesome.css?v=4.4.0" rel="stylesheet">
+
+    <link href="../../assets/css/plugins/bootstrap-table/bootstrap-table.min.css" rel="stylesheet">
+
+    <link href="../../assets/css/animate.css" rel="stylesheet">
+    <link href="../../assets/css/style.css?v=4.1.0" rel="stylesheet">
+</head>
+
+<body class="gray-bg">
+    <div class="wrapper wrapper-content  animated fadeInRight">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="ibox ">
+                    <div class="ibox-title">
+                        <h5>数据参数组管理</h5>
+                    </div>
+                    <div class="ibox-content">
+                        <div class="row row-lg">
+		                    <div class="col-sm-12">
+		                        <!-- Example Card View -->
+		                        <div class="example-wrap">
+		                            <div class="example">
+		                            	<div class="btn-group hidden-xs" id="tableToolbar" role="group">
+		                                    <button type="button" class="btn btn-outline btn-default"  onclick="add();" id="addBtn">
+		                                        <i class="glyphicon glyphicon-plus" aria-hidden="true"></i>
+		                                    </button>
+		                                </div>
+		                            	<table id="table_list" data-mobile-responsive="true" style="table-layout: fixed;word-break:break-all; word-wrap:break-all;"></table>
+		                            </div>
+		                        </div>
+		                        <!-- End Example Card View -->
+		                    </div>
+	                    </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 全局js -->
+    <script src="../../assets/js/jquery.min.js?v=2.1.4"></script>
+    <script src="../../assets/js/bootstrap.min.js?v=3.3.6"></script>
+
+
+	<!-- Bootstrap table -->
+    <script src="../../assets/js/plugins/bootstrap-table/bootstrap-table.min.js"></script>
+    <script src="../../assets/js/plugins/bootstrap-table/bootstrap-table-mobile.min.js"></script>
+    <script src="../../assets/js/plugins/bootstrap-table/locale/bootstrap-table-zh-CN.min.js"></script>
+
+    <!-- Peity -->
+    <script src="../../assets/js/plugins/peity/jquery.peity.min.js"></script>
+
+    <script src="../../assets/js/plugins/layer/layer.min.js"></script>
+    <script src="../../assets/common/PermissionUtils.js"></script>
+
+    <!-- 自定义js -->
+    <script src="../../assets/js/content.js?v=1.0.0"></script>
+
+    <!-- Page-Level Scripts -->
+    <script>
+        $(document).ready(function () {
+			//初始化表格,动态从服务器加载数据  
+			$("#table_list").bootstrapTable({
+			    //使用get请求到服务器获取数据  
+			    method: "GET",
+			    //必须设置，不然request.getParameter获取不到请求参数
+			    contentType: "application/json",
+			    //获取数据的Servlet地址  
+			    url: "../../data-parameter-group/list",
+			    toolbar: '#tableToolbar',
+			    //表格显示条纹  
+			    striped: true,
+			    showRefresh: true,
+			    //启动分页  
+			    pagination: true,
+			    //每页显示的记录数  
+			    pageSize: 10,
+			    //当前第几页  
+			    pageNumber: 1,
+			    //记录数可选列表  
+			    pageList: [5, 10, 15, 20, 25,2000],
+			    //是否启用查询  
+			    search: true,
+			    //是否启用详细信息视图
+			    detailView:true,
+			    detailFormatter:detailFormatter,
+			    //表示服务端请求  
+			    sidePagination: "server",
+			    //设置为undefined可以获取pageNumber，pageSize，searchText，sortName，sortOrder  
+			    //设置为limit可以获取limit, offset, search, sort, order  
+			    queryParamsType: "undefined",
+                sortOrder: "desc",
+			    //json数据解析
+			    responseHandler: function(res) {
+			        return {
+			            "rows": res.data,
+			            "total": res.rowsCount
+			        };
+			    },
+			    //数据列
+			    columns: [{
+			        title: "唯一标识",
+			        field: "identifier",
+			        sortable: true,
+			        width:100
+			    },{
+			        title: "名称",
+			        field: "name",
+			        sortable: true,
+			        width:100
+			    },{
+			        title: "内容",
+			        field: "content",
+			        width:280
+			    },{
+			        title: "状态",
+			        sortable: true,
+			        field: "status",
+                    formatter: function (value, row, index) {
+                    	if(value == 'ACTIVE')
+                    		return '<span class="label label-info">启用</span>';
+                    	else if(value == 'INACTIVE')
+                    		return '<span class="label label-danger">停用</span>';
+                    },
+			        width:70
+			    },{
+			        title: "操作",
+			        field: "empty",
+                    formatter: function (value, row, index) {
+                    	var operateHtml = '';
+                    	if(contain(parent.globalPermissions,'dataParameterGroup:save')){
+                    		operateHtml = '<button class="btn btn-primary btn-xs" type="button" onclick="edit(\''+row.id+'\')"><i class="fa fa-edit"></i>&nbsp;修改</button> &nbsp;';
+                    	}
+                    	if(contain(parent.globalPermissions,'dataParameterGroup:delete')){
+                    		operateHtml = operateHtml + '<button class="btn btn-danger btn-xs" type="button" onclick="del(\''+row.id+'\')"><i class="fa fa-remove"></i>&nbsp;删除</button>&nbsp;';
+                    	}
+                        return operateHtml;
+                    },
+			        width:130
+			    }]
+			});
+        });
+        
+        function edit(id){
+        	layer.open({
+        	      type: 2,
+        	      title: '数据参数修改',
+        	      shadeClose: true,
+        	      maxmin: true,            //最大化按钮
+        	      anim:3,                    //动画
+        	      shade: [0.8, '#393D49'],//遮罩层
+        	      area: ['893px', '500px'],
+        	      content: 'form.html?id=' + id,
+        	      end: function(index){
+        	    	  $('#table_list').bootstrapTable("refresh");
+       	    	  }
+        	    });
+        }
+        function jump(id){
+        	window.location.href="var-index.html?rule="+id;
+        }
+        function jumpOut(id){
+        	window.location.href="out-index.html?rule="+id;
+        }
+      
+        function add(){
+        	layer.open({
+        	      type: 2,
+        	      title: '数据参数添加',
+        	      shadeClose: true,
+        	      maxmin: true,            //最大化按钮
+        	      anim:3,                    //动画
+        	      shade: [0.8, '#393D49'],//遮罩层
+        	      area: ['893px', '500px'],
+        	      content: 'form.html',
+        	      end: function(index){
+        	    	  $('#table_list').bootstrapTable("refresh");
+       	    	  }
+        	    });
+        }
+        function del(id){
+        	layer.confirm('确定删除吗?', {icon: 3, title:'提示'}, function(index){
+        		$.ajax({
+    	    		   type: "DELETE",
+    	    		   dataType: "json",
+    	    		   url: "../../data-parameter-group/" + id,
+    	    		   success: function(msg){
+	 	   	    			layer.msg(msg.msg, {time: 2000},function(){
+	 	   	    				$('#table_list').bootstrapTable("refresh");
+	 	   	    				layer.close(index);
+	 	   					});
+    	    		   }
+    	    	});
+       		});
+        }
+        function detailFormatter(index, row) {
+	         var html = [];
+		   	 if(row.id){
+			        html.push('<p><b>ID:</b> ' + row.id + '</p>');
+		     }
+	        if(row.description){
+		        html.push('<p><b>描述:</b> ' + row.description + '</p>');
+		    }
+	        if(row.createdUser){
+		        html.push('<p><b>创建人:</b> ' + row.createdUser + '</p>');
+		    }
+	        if(row.createdDate){
+		        html.push('<p><b>创建日期:</b> ' + row.createdDate + '</p>');
+		    }
+	        if(row.modifiedUser){
+		        html.push('<p><b>修改人:</b> ' + row.modifiedUser + '</p>');
+		    }
+	        if(row.modifiedDate){
+		        html.push('<p><b>修改日期:</b> ' + row.modifiedDate + '</p>');
+		    }
+	        return html.join('');
+	    }
+    </script>
+</body>
+
+</html>

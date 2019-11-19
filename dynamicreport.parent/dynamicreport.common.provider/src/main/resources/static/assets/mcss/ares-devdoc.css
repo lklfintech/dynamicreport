@@ -1,0 +1,54 @@
+pre.ar-pre-code{
+  padding: 7px 10px ;
+  color: #c7254e;
+  border-radius: 4px;
+  white-space: pre-wrap;
+}
+pre.ar-pre-code i,code i{
+    color: #777;
+    font-size: 90%;
+}
+
+fieldset.devdoc-fieldset{
+	margin-bottom:15px;
+	padding:0 5px;
+}
+legend.devdoc-legend{
+    font-size:2em;
+    color:#333;
+}
+legend.devdoc-legend:before{
+	content:"      "
+}
+fieldset.devdoc-fieldset table td ol,fieldset.devdoc-fieldset table td ul{
+	padding-left:25px;
+}
+
+div.devdoc-content{
+    margin-bottom:15px;
+    padding:0 15px;
+}
+
+.devArticleList{
+	width:200px;
+	position:fixed;
+	top:50px;
+	right:0px;
+	border:1px solid #999;
+	padding:10px;
+	border-radius:5px;
+	opacity: 0.2;
+	z-index: 99;
+}
+.devArticleList:hover{
+	opacity: 1.0;
+	background:#fff;
+}
+.devArticleList ul{
+	margin-bottom:0;
+	padding-left:20px;
+}
+.devArticleList li {
+  margin-bottom: 5px;
+  line-height: 1.3em;
+}

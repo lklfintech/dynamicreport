@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <title>用户列表</title>
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+
+    <link rel="shortcut icon" href="favicon.ico"> 
+    <script type="text/javascript" src="../../assets/js/public_css.js"></script> 
+</head>
+
+<body class="gray-bg">
+    <div class="wrapper wrapper-content  animated fadeInRight">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="ibox ">
+                    <div class="ibox-title">
+                        <h5>用户管理</h5>
+                    </div>
+                    <div class="ibox-content">
+                        <div class="row row-lg">
+		                    <div class="col-sm-12">
+		                        <!-- Example Card View -->
+		                        <div class="example-wrap">
+		                            <div class="example">
+		                            	<div class="btn-group hidden-xs" id="tableToolbar" role="group">
+		                                    <button type="button" class="btn btn-hight-light" onclick="add('form.html','893px', '460px','用户添加');"  title="添加"  id="addBtn">
+		                                        <i class="fa fa-plus" aria-hidden="true"></i>&nbsp;添加
+		                                    </button>
+		                                </div>
+		                            	<table id="table_list" data-mobile-responsive="true" style="table-layout: fixed;word-break:break-all; word-wrap:break-all;"></table>
+		                            </div>
+		                        </div>
+		                        <!-- End Example Card View -->
+		                    </div>
+	                    </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+   <script type="text/javascript" src="../../assets/js/public.js"></script>
+     
+    <!-- Page-Level Scripts -->
+    <script>
+        $(document).ready(function () {
+        	var columns=[{
+		        title: "用户登陆名",
+		        field: "id",
+		        sortable: true,
+		        width:"50"
+		    },{
+		        title: "用户姓名",
+		        field: "name",
+		        sortable: true,
+		        width:"50"
+		    },{
+		        title: "用户别名",
+		        field: "nickName",
+		        sortable: true,
+		        width:"50"
+		    }
+		     ,{
+		        title: "状态",
+		        sortable: true,
+		        field: "status",
+		        width:"50",
+                formatter: function (value, row, index) {
+                	if(value == 'ACTIVE')
+                		return '<span class="label label-info">启用</span>';
+                	else if(value == 'INACTIVE')
+                		return '<span class="label label-danger">停用</span>';
+                }
+		    },{
+		        title: "操作",
+		        field: "empty",
+		        width:"80",
+                formatter: function (value, row, index) {
+                	if(!contain(parent.globalPermissions,'system_user:saveOrUpdate')){
+                		 $("#addBut").attr("disabled","disabled");
+                	}
+                	var editMsg="管理员用户不能修改!";
+                	var editTile="用户修改";
+                  	var operateHtml = '';
+                	var editUrl='form.html?id=' + row.id;
+                	var widht='893px';
+                	var height='460px';
+                	var delMsg="管理员用户不能删除!";
+                	var delUrl="../../system-user/" + row.id;
+                	if(contain(parent.globalPermissions,'system_user:saveOrUpdate')){
+                    	var operateHtml = '<button class="btn btn-primary btn-xs" type="button" onclick="systemEdit(&quot;'+row.id+'&quot;,&quot;'+editMsg+'&quot;,&quot;'+editUrl+'&quot;,&quot;'+ widht+'&quot;,&quot;'+height+'&quot;,&quot;'+editTile+'&quot;)" ><i class="fa fa-edit"></i>&nbsp;修改</button> &nbsp;';
+                	}
+                	if(contain(parent.globalPermissions,'system_user:delete')){
+                    	operateHtml = operateHtml + '<button class="btn btn-danger btn-xs" type="button" onclick="systemDel(&quot;'+row.id+'&quot;,&quot;'+delUrl+'&quot;,&quot;'+delMsg+'&quot;)"><i class="fa fa-remove"></i>&nbsp;删除</button> &nbsp;';
+                	}
+                	if(contain(parent.globalPermissions,'role:query')){
+                     	operateHtml = operateHtml + '<button class="btn btn-hight-light-s btn-xs" type="button" onclick="openRole(\''+row.id+'\')"><i class="fa fa-code-fork"></i>&nbsp;分配角色</button>';
+                	}
+                	return operateHtml;
+                }
+		    }];
+         	inintTableList("table_list",  "../../system-user/list", columns,detailFormatter);
+         });
+ 
+        function detailFormatter(index, row) {
+	        var html = [];
+ 	        if(row.sex=='1'){
+	        	html.push('<p><b>性别:</b> ' + "男" + '</p>');
+	        }else{
+	        	html.push('<p><b>性别:</b> ' + "女" + '</p>');	
+	        }
+	        if(row.birthday!=null){
+		        html.push('<p><b>生日:</b> ' + row.birthday + '</p>');
+		    }else{
+		        html.push('<p><b>生日:</b> ' + "无生日" + '</p>');	
+		    }
+	        if(row.phone!=null){
+		        html.push('<p><b>电话:</b> ' + row.phone + '</p>');
+		    }else{
+		        html.push('<p><b>电话:</b> ' + "无电话" + '</p>');	
+		    }
+	        if(row.email!=null){
+	        	html.push('<p><b>email:</b> ' + row.email + '</p>');
+	        }else{
+	        	html.push('<p><b>email:</b> ' + "无邮箱" + '</p>');	
+	        }
+	        if(row.locked=='1'){
+		        html.push('<p><b>是否锁:</b> ' + "是"  + '</p>');
+		    }else{
+		        html.push('<p><b>是否锁:</b> ' + "否" + '</p>');	
+		    }
+	     
+	        if(row.address!=null){
+		        html.push('<p><b>地址:</b> ' + row.address + '</p>');
+		    }else{
+		        html.push('<p><b>地址:</b> ' + "无地址" + '</p>');	
+		    }
+	        if(row.createdDate){
+		        html.push('<p><b>创建日期:</b> ' + row.createdDate + '</p>');
+		    }
+	        if(row.modifiedDate){
+		        html.push('<p><b>修改日期:</b> ' + row.modifiedDate + '</p>');
+		    }
+	        if(row.createdUser){
+		        html.push('<p><b>创建人:</b> ' + row.createdUser + '</p>');
+		    }
+	        if(row.modifiedUser){
+		        html.push('<p><b>修改人:</b> ' + row.modifiedUser + '</p>');
+		    }
+ 	        return html.join('');
+	    }
+        
+        function openRole(id){
+        	layer.open({
+        	      type: 2,
+        	      title: '选择角色',
+        	      shadeClose: true,
+        	      maxmin: true,            //最大化按钮
+        	      anim:3,                    //动画
+        	      shade: [0.8, '#393D49'],//遮罩层
+        	      area: ['893px', '460px'],
+        	      content: 'role.html?id=' + id
+        	    });
+        }
+        
+        function confirmIsAdmin(id){
+        	var flag=false;
+         	$.ajax({
+     		   type: "GET",
+     		   dataType: "json",
+     		   async: true,
+     		   url: '../../system-user/list/'+id,
+     		   success: function(data){
+        		  if(data.id=="admin"){
+       				 flag=true;
+     			   }
+     		   }
+     		});
+         	return flag;
+        }
+        
+        
+        function detailFormatter(index, row) {
+            var html = [];
+             if(row.description){
+       	        html.push('<p><b>描述:</b> ' + row.description + '</p>');
+            }
+        	 if(row.createdDate){
+       	        html.push('<p><b>创建日期:</b> ' + row.createdDate + '</p>');
+       	     }
+            if(row.createdUser){
+       	        html.push('<p><b>创建人:</b> ' + row.createdUser + '</p>');
+       	    }
+            if(row.modifiedDate){
+       	        html.push('<p><b>修改日期:</b> ' + row.modifiedDate + '</p>');
+       	    }
+            if(row.modifiedUser){
+       	        html.push('<p><b>修改人:</b> ' + row.modifiedUser + '</p>');
+       	    }
+            return html.join('');
+        }
+    </script>
+
+ 
+</body>
+
+</html>

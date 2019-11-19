@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+    <title>宝莲灯报表系统-登录</title>
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+    <link rel="shortcut icon" href="assets/img/logo.jpg">
+    <link href="assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="assets/css/font-awesome.css?v=4.4.0" rel="stylesheet">
+    <link href="assets/css/animate.css" rel="stylesheet">
+    <link href="assets/css/style.css" rel="stylesheet">
+    <link href="assets/css/login_tezheng.css" rel="stylesheet">
+    <!--[if lt IE 9]>
+    <meta http-equiv="refresh" content="0;ie.html" />
+    <![endif]-->
+    <script>
+        if (window.top !== window.self) {
+            window.top.location = window.location;
+        }
+    </script>
+
+</head>
+
+<body class="signin">
+    <div class="signinpanel">
+        <div class="row">
+            <div class="col-sm-12">
+                <form method="post" id="frm">
+                    <h4 class="no-margins"></h4>
+                    <p class="m-t-md">登录到宝莲灯报表系统后台</p>
+                    <input type="text" class="form-control uname" placeholder="用户名" id="username" name="username"/>
+                    <input type="password" class="form-control pword m-b" placeholder="密码" id="password" name="password"/>
+                    <!-- <a href="">忘记密码了？</a> -->
+                    <button class="btn btn-success btn-block">登录</button>
+                </form>
+            </div>
+        </div>
+        <div class="signup-footer">
+            <div class="pull-left">
+                &copy; 拉卡拉金融科技
+            </div>
+        </div>
+    </div>
+        <!-- 全局js -->
+    <script src="assets/js/jquery.min.js?v=2.1.4"></script>
+    <script src="assets/js/bootstrap.min.js?v=3.3.6"></script>
+    <script src="assets/js/plugins/validate/jquery.validate.min.js"></script>
+    <script src="assets/js/plugins/validate/messages_zh.min.js"></script>
+    <script src="assets/js/plugins/layer/layer.min.js"></script>
+    <script src="assets/js/plugins/layer/laydate/laydate.js"></script>
+     <script type="text/javascript">
+    $(document).ready(function () {
+	    $("#frm").validate({
+    	    rules: {
+    	    	username: {
+    	        required: true,
+    	        minlength: 1,
+    	    	maxlength: 100
+    	      },password: {
+    	        required: true,
+    	        minlength: 1,
+    	    	maxlength: 100
+    	      }
+    	    },
+    	    messages: {},
+    	    submitHandler:function(form){
+    	    	$.ajax({
+   	    		   type: "POST",
+   	    		   dataType: "json",
+   	    		   url: "login/auth",
+   	    		   data: $(form).serialize(),
+   	    		   success: function(msg){
+   	    			   if(msg.success){
+   	    				   location.href= msg.url;
+   	    			   }else{
+   		   	    		   layer.msg(msg.msg, {time: 2000},function(){
+	   	   						var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+	   	   						parent.layer.close(index); 
+	   	   					});
+   	    			   }
+   	    		   }
+   	    		});
+            } 
+    	});
+    });
+    </script>
+</body>
+
+</html>

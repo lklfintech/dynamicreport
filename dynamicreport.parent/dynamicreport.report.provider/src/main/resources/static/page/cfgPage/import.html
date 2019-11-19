@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>导入报表文件</title>
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+    <link rel="shortcut icon" href="favicon.ico">
+    <script type="text/javascript" src="../../assets/js/public_css.js"></script>
+    <link href="../../assets/css/common.css" rel="stylesheet">
+</head>
+<body class="gray-bg">
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                </div>
+                <div class="ibox-content">
+                    <form class="form-horizontal m-t" id="frm" method="post" enctype="multipart/form-data">
+                        <input type="hidden" id="flag"/>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">导入文件：</label>
+                            <div class="col-sm-8">
+                                <input type="file" class="btn-primary" name="file" id="file">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-8 col-sm-offset-3">
+                                <button class="btn btn-primary" type="button" id="submitBut" onclick="upload();">提交
+                                </button>
+                            </div>
+                            <div class="col-sm-8 col-sm-offset-3" id="usedTime">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myModal" class="modal fade" data-keyboard="false"
+     data-backdrop="static" data-role="dialog"
+     aria-labelledby="myModalLabel" aria-hidden="true">
+    <div id="loading" class="loading">处理中。。。</div>
+</div>
+
+<script type="text/javascript" src="../../assets/js/public.js"></script>
+<script src="../../assets/js/plugins/peity/jquery.peity.min.js"></script>
+<script src="../../assets/js/plugins/multiselect/bootstrap-multiselect.js"></script>
+<script type="text/javascript">
+    function upload() {
+        $("#submitBut").attr("disabled", "disabled");
+        var file = $('#file').val();
+        if (!file) {
+            layer.msg("请选择要导入的文件", {time: 2000}, function () {
+            });
+            $('#submitBut').removeAttr("disabled");
+            return;
+        }
+        $('#myModal').modal('show');
+        var form = new FormData(document.getElementById("frm"));
+        $.ajax({
+            url: "../../cfg/page/json/import",
+            type: "post",
+            data: form,
+            async: true,
+            processData: false,
+            contentType: false,
+            success: function (data) {
+                layer.msg(data.msg, {time: 2000}, function () {
+                });
+                $('#submitBut').removeAttr("disabled");
+                $('#myModal').modal('hide');
+            },
+            error: function (e) {
+                layer.msg("导入失败", {time: 2000}, function () {
+                });
+                $('#submitBut').removeAttr("disabled");
+                $('#myModal').modal('hide');
+            }
+        });
+    }
+</script>
+</body>
+</html>

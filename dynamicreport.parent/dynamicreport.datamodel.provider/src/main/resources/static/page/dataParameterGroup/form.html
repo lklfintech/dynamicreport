@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <title>数据参数操作</title>
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+
+    <link rel="shortcut icon" href="favicon.ico"> 
+    <link href="../../assets/css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+    <link href="../../assets/css/font-awesome.css?v=4.4.0" rel="stylesheet">
+    <link href="../../assets/css/animate.css" rel="stylesheet">
+    <link href="../../assets/css/style.css?v=4.1.0" rel="stylesheet">
+
+</head>
+
+<body class="gray-bg">
+    <div class="wrapper wrapper-content animated fadeInRight">
+        <div class="row">
+            <div class="col-sm-8">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-content">
+                        <form class="form-horizontal m-t" id="frm" method="post">
+                        	<input type="hidden" id="id" name="id">
+                            <div class="form-group"> 
+                                <label class="col-sm-3 control-label">唯一标识：</label>
+                                <div class="col-sm-8">
+                                    <input id="identifier" name="identifier" class="form-control alphanumeric" type="text" maxlength="100">
+                                </div>
+                            </div>
+                            <div class="form-group"> 
+                                <label class="col-sm-3 control-label">名称：</label>
+                                <div class="col-sm-8">
+                                    <input id="name" name="name" class="form-control" type="text" maxlength="100">
+                                </div>
+                            </div>
+                             <div class="form-group">
+                                <label class="col-sm-3 control-label">内容：</br><span style="color:#b8b6b6"> {parameter_A} and {parameter_B} or {parameter_C}</span></label>
+                                <div class="col-sm-8">
+                                    <textarea rows="6" id="content" name="content" class="form-control" maxlength="500"></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">描述：</label>
+                                <div class="col-sm-8">
+                                    <textarea rows="6" id="description" name="description" class="form-control" maxlength="500"></textarea>
+                                </div>
+                            </div>
+                              <div class="form-group"> 
+                                <label class="col-sm-3 control-label">状态：</label>
+                                <div class="col-sm-8">
+                                 <select class="form-control" id="status" style="width:200px;" name="status"  aria-required="true">
+									<option value="ACTIVE">启用</option>
+									<option value="INACTIVE">停用</option>
+								</select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-8 col-sm-offset-3">
+                                    <button class="btn btn-primary" type="submit">提交</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4">
+			    <div class="panel-group" >
+					<div class="panel panel-default">
+						<div id="collapseOne" class="panel-collapse collapse in">
+							<div class="panel-body">
+								<ul class="todo-list m-t">
+									<li>
+										<button type="button" class="btn btn-info m-r-sm" onclick="genFunVariable(' and ')">and</button> 
+										<button type="button" class="btn btn-info m-r-sm" onclick="genFunVariable(' or ')">or</button> 
+										<button type="button" class="btn btn-info m-r-sm" onclick="genFunVariable(' (  ) ')">( )</button> 
+									</li>
+			                    </ul>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-sm-4">
+			    <div class="panel-group">
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<h4 class="panel-title">
+								<a data-toggle="collapse" data-parent="#accordion" 
+								   href="#collapseTwo">
+									数据参数搜索
+								</a>
+								<input type="text" id="dataParamterText" class="form-control" >
+							</h4>
+						</div>
+						<div id="collapseTwo" class="panel-collapse collapse in">
+							<div class="panel-body">
+								<ul class="todo-list m-t" id="dataParameterList">
+			                    </ul>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			
+        </div>
+
+    </div>
+
+
+    <!-- 全局js -->
+    <script src="../../assets/js/jquery.min.js?v=2.1.4"></script>
+    <script src="../../assets/js/bootstrap.min.js?v=3.3.6"></script>
+
+    <!-- 自定义js -->
+    <script src="../../assets/js/content.js?v=1.0.0"></script>
+
+    <!-- jQuery Validation plugin javascript-->
+    <script src="../../assets/js/plugins/validate/jquery.validate.min.js"></script>
+    <script src="../../assets/js/plugins/validate/additional-methods.min.js"></script>
+    <script src="../../assets/js/plugins/validate/messages_zh.min.js"></script>
+    <script src="../../assets/js/plugins/layer/layer.min.js"></script>
+    <script src="../../assets/js/plugins/layer/laydate/laydate.js"></script>
+    <script src="../../assets/common/formUtils.js"></script>
+    <script type="text/javascript">
+    $(document).ready(function () {
+     
+	  	var id=GetQueryString("id");
+	  	if(id){
+	  		$("#identifier").attr("disabled","disabled");
+	  		$.ajax({
+    		   type: "GET",
+    		   dataType: "json",
+    		   url: '../../data-parameter-group/list/'+id,
+    		   success: function(data){
+    			   $('#frm').formEdit(data);
+    		   }
+    		});
+	  	}
+	    $("#frm").validate({
+    	    rules: {
+    	    	identifier: {
+    	        required: true,
+    	        minlength: 1,
+    	    	maxlength: 100
+    	      },name: {
+    	        required: true,
+    	        minlength: 1,
+    	    	maxlength: 100
+    	      },content: {
+	   	    	required: true,
+	      	    minlength: 1,
+	      	  	maxlength: 200
+    	      },dsDescription: {
+    	        required: false,
+    	    	maxlength: 500
+    	      }
+    	    },
+    	    messages: {},
+    	    submitHandler:function(form){
+    	    	var identifier=$('#identifier').val();
+    	    	var reg = /^[a-zA-Z].*$/;
+    	        if(!reg.test(identifier)){
+    	        	layer.msg('唯一标识必须以英文字母开头，只能包含英文字母、数字、下划线！', {time: 2000},function(){
+    	        		
+	   				});
+    	        	$('#identifier').focus();
+    	        	return;
+    	        }
+    	    	$.ajax({
+   	    		   type: "POST",
+   	    		   dataType: "json",
+   	    		   url: "../../data-parameter-group/save-update",
+   	    		   data: $(form).serialize(),
+   	    		   success: function(msg){
+	   	    			layer.msg(msg.msg, {time: 2000},function(){
+	   	    				if(msg.success){
+		   						var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+		   						parent.layer.close(index); 
+	   	    				}
+	   					});
+   	    		   }
+   	    		});
+            } 
+    	});
+	    //初始化
+	    searchDataParamter();
+	  //输入框正在输入时
+        $("#dataParamterText").on('input',function(){
+        	searchDataParamter();
+        })
+    });
+    function searchDataParamter(){
+    	$('#dataParameterList').html('');
+    	 var searchText=$("#dataParamterText").val();
+ 	    //数据参数列表初始化
+    	 $.ajax({
+    		   type: "GET",
+    		   dataType: "json",
+    		   url: "../../data-parameter/list-all",
+    		   data:{'searchText':searchText},
+    		   success: function(result){
+  	    			if(result){
+  	    				var itemL='';
+  	    				for(var i=0;i<result.length;i++){
+  	    					var item=result[i];
+  	    					itemL+='<li>';
+  	    					itemL+='<button type="button" class="btn btn-info m-r-sm" onclick="genFunVariable(\' {'+item.identifier+'} \')">'+item.identifier+'('+item.name+')</button>';
+  	    					itemL+='</li>';
+  	    				}
+  	    				$('#dataParameterList').append(itemL);
+  	    			}
+    		   }
+  	   });
+    }
+    function genFunVariable(textFeildValue) {
+    	var textObj=$('#frm')[0].content;
+        if (document.all) {
+            if (textObj.createTextRange && textObj.caretPos) {
+                var caretPos = textObj.caretPos;
+                caretPos.text = caretPos.text.charAt(caretPos.text.length - 1) == '   ' ? textFeildValue + '   ' : textFeildValue;
+            } else {
+                textObj.value = textFeildValue;
+            }
+        } else {
+            if (textObj.setSelectionRange) {
+                var rangeStart = textObj.selectionStart;
+                var rangeEnd = textObj.selectionEnd;
+                var tempStr1 = textObj.value.substring(0, rangeStart);
+                var tempStr2 = textObj.value.substring(rangeEnd);
+                textObj.value = tempStr1 + textFeildValue + tempStr2;
+            } 
+        }
+    }  
+    </script>
+
+</body>
+
+</html>

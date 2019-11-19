@@ -1,0 +1,137 @@
+// Jenkinsfile (Declarative Pipeline)
+// 1:dev 2:sit 3:uat 4:production
+@Library('lakala-ci')
+import com.lakala.fintech.jenkins.JenkinsPipelineUtil
+def getGitTagName(localBranchName) {
+    def util = new JenkinsPipelineUtil()
+    def getTagScript = util.getGitTagScript(localBranchName)
+    def tagName = sh returnStdout: true ,script: "${getTagScript}"
+    return tagName
+}
+// if build multi images, define more functions
+pipeline {
+    agent any
+    environment {
+        def PROJECT_DIR = "dynamicreport.parent"
+        def SERVICE_NAME = "dynamic-report"
+        def RESULT_NOTIFY = ""
+    }
+    stages {
+        stage('Build') {
+            steps {
+                script {
+                    def util = new JenkinsPipelineUtil()
+                    def gitBranchName = "${env.GIT_BRANCH}"
+                    echo "current git branch is ${gitBranchName}"
+                    def buildEnviroment = util.getBuildEnviroment(gitBranchName)
+                    def buildProp = util.getBuildPropertyByBuildEnviroment(buildEnviroment)
+                    if(buildEnviroment == 1){
+                        echo 'building and check code ..'
+                        sh "cd ${PROJECT_DIR} && mvn clean compile  -Dmaven.test.skip=true "
+                    }else{
+                        sh "cd ${PROJECT_DIR} && mvn clean package  -Dmaven.test.skip=true -P${buildProp}"
+                    }
+                }
+            }
+        }
+        stage('Package') {
+            steps {
+                script {
+                    def util = new JenkinsPipelineUtil()
+                    def gitBranchName = "${env.GIT_BRANCH}"
+                    def buildEnviroment = util.getBuildEnviroment(gitBranchName)
+                    
+                    def harborRegistry = util.getHarborRegistry()
+                    def harborLoginCredential = util.getHarborLoginCredential()
+                    def buildProp = util.getBuildPropertyByBuildEnviroment(buildEnviroment)
+                    def jenkinsBranchNumber = "${env.BUILD_NUMBER}"
+                    def localBranchName = util.getLocalBranchName(gitBranchName)
+                    def tagName = getGitTagName(localBranchName)
+                    def projectVersion = util.getProjectVersion(localBranchName, tagName,jenkinsBranchNumber)
+
+                    if(buildEnviroment == 2 || buildEnviroment == 3 || buildEnviroment == 4){
+                        docker.withRegistry(harborRegistry,harborLoginCredential) {
+                            // modify image name,  if build multi images, repeat below block code, 
+                            // build image for special dockerfile 
+                            def baseImageName = "${SERVICE_NAME}"
+                            def imageName = "${buildProp}/${baseImageName}"
+                            def image=docker.build(imageName, "./${PROJECT_DIR}")
+                            image.push()
+                            image.push(projectVersion)
+                        }
+                    }
+                }
+            }
+        }
+        stage('Deploy') {
+            steps {
+                script {
+                    echo 'Deploying....'
+                    def serviceName =  "${SERVICE_NAME}"
+                    echo "current service name: ${serviceName}"
+                    def util = new JenkinsPipelineUtil()
+                    def gitBranchName = "${env.GIT_BRANCH}"
+                    def buildEnviroment = util.getBuildEnviroment(gitBranchName)
+                    def buildProp = util.getBuildPropertyByBuildEnviroment(buildEnviroment)
+                    def jenkinsBranchNumber = "${env.BUILD_NUMBER}"
+                    def localBranchName = util.getLocalBranchName(gitBranchName)
+                    def tagName = getGitTagName(localBranchName)
+                    if(buildEnviroment == 2 || buildEnviroment == 3){
+                        def projectVersion = util.getProjectVersion(localBranchName, tagName,jenkinsBranchNumber)
+                        def k8sScript = util.getK8SDeployScript(buildProp,serviceName,projectVersion)
+                        sh "${k8sScript}"
+                    }
+                    if(buildEnviroment == 4){
+                        def projectPatchVersion = util.getProjectVersion(localBranchName,tagName)
+                        def remoteMakeDirScript = util.getRemoteMakeDirScript(buildProp,serviceName,projectPatchVersion)
+                        def deployPackage = 'dynamicreport.parent/dynamicreport.feature.provider/target/dynamicreport.feature.provider.tar.gz'
+                        def rsyncPushScript = util.getRsyncPushScript(buildProp,serviceName,projectPatchVersion,deployPackage)
+                        sh "${remoteMakeDirScript}"
+                        sh "${rsyncPushScript}"
+                    }
+                }
+            }
+        }
+    }
+    post {
+        success {
+            script {
+                def util = new JenkinsPipelineUtil()
+                def gitBranchName = "${env.GIT_BRANCH}"
+                def buildEnviroment = util.getBuildEnviroment(gitBranchName)
+                if(buildEnviroment > 1){
+                    emailext (
+                        subject: "'${env.JOB_NAME} [${env.BUILD_NUMBER}]' 更新正常",
+                        body: """
+                        详情：
+                        SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'
+                        状态：${env.JOB_NAME} jenkins 更新运行正常 
+                        URL ：${env.BUILD_URL}
+                        项目名称 ：${env.JOB_NAME} 
+                        项目更新进度：${env.BUILD_NUMBER}
+                        """,
+                        to: "${RESULT_NOTIFY}",
+                        recipientProviders: [[$class: 'DevelopersRecipientProvider']]
+                        )
+                } else {
+                    echo "feature branch ${gitBranchName}, don't send mail when success"
+                }
+            }
+        }   
+        failure {
+            emailext (
+                subject: "'${env.JOB_NAME} [${env.BUILD_NUMBER}]' 更新失败",
+                body: """
+                详情：
+                FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'             
+                状态：${env.JOB_NAME} jenkins 运行失败 
+                URL ：${env.BUILD_URL}
+                项目名称 ：${env.JOB_NAME} 
+                项目更新进度：${env.BUILD_NUMBER}
+                """,
+                to: "${RESULT_NOTIFY}",
+                recipientProviders: [[$class: 'DevelopersRecipientProvider']]
+            )
+        }
+    }
+}

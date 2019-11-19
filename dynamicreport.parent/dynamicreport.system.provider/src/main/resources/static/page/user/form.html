@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <title>用户操作</title>
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+
+     <link rel="shortcut icon" href="favicon.ico"> 
+     <script type="text/javascript" src="../../assets/js/public_css.js"></script> 
+
+     <link href="../../assets/css/plugins/datapicker/datepicker3.css" rel="stylesheet">
+</head>
+
+<body class="gray-bg">
+    <div class="wrapper wrapper-content animated fadeInRight">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-content" >
+                        <form class="form-horizontal m-t" id="frm" method="post">
+                         	<input type="hidden" id="action" name="action" value="add">
+                         	<input type="hidden" id="pkId" name="pkId">
+                        	<div class="form-group"> 
+                                <label class="col-sm-3 control-label">用户登陆名：</label>
+                                <div class="col-sm-8">
+                                    <input id="id" name="id" class="form-control alphanumeric" type="text" required=""  minlength="3" aria-required="true" maxlength="50">
+                                </div>
+                            </div>
+                              <div class="form-group"> 
+                                <label class="col-sm-3 control-label">姓名：</label>
+                                <div class="col-sm-8">
+                                    <input id="name" name="name" class="form-control"  minlength="2" type="text" required="" aria-required="true" maxlength="50">
+                                </div>
+                            </div>
+                             <div class="form-group"> 
+                                <label class="col-sm-3 control-label">用户别名：</label>
+                                <div class="col-sm-8">
+                                    <input id="nickName" name="nickName" class="form-control"  type="text" required="" aria-required="true"   minlength="2"maxlength="50">
+                                </div>
+                            </div>
+                              <div class="form-group" id="divPassword"> 
+                                <label class="col-sm-3 control-label">密码：</label>
+                                <div class="col-sm-8">
+                                    <input id="password" name="password" class="form-control" type="password" required="" aria-required="true"   minlength="5" maxlength="50">
+                                </div>
+                            </div>
+                             <div class="form-group"  id="divConfirmPassword"> 
+                                <label class="col-sm-3 control-label">确认密码：</label>
+                                <div class="col-sm-8">
+                                    <input id="confirmPassword" name="confirmPassword" class="form-control"  required="" aria-required="true"  type="password"  equalTo="#password"   minlength="5" maxlength="50">
+                                </div>
+                            </div>
+                            <div class="form-group"> 
+                                <label class="col-sm-3 control-label">性别：</label>
+                                <div class="col-sm-8"> 
+                                 <select class="form-control" id="sex"   style="width:200px;height:35px" name="sex" required="" aria-required="true">
+									<option value="1">男</option>
+									<option value="0">女</option>
+								</select>
+                                </div>
+                            </div>
+                             <div class="form-group"> 
+                                <label class="col-sm-3 control-label">邮箱：</label>
+                                <div class="col-sm-8">
+                                    <input id="email" name="email" class="form-control" type="text" maxlength="100">
+                                </div>
+                            </div>
+                             <div class="form-group"> 
+                                <label class="col-sm-3 control-label">电话：</label>
+                                <div class="col-sm-8">
+                                    <input id="usrPhone" name="phone" class="form-control" type="text" maxlength="30">
+                                </div>
+                             </div>
+                             <div class="form-group"> 
+                                <label class="col-sm-3 control-label">用户地址：</label>
+                                <div class="col-sm-8">
+                                    <input id="address" name="address" class="form-control" type="text" maxlength="300">
+                                </div>
+                             </div>
+                              <div class="form-group"> 
+                                <label class="col-sm-3 control-label">用户生日：</label>
+                                <div class="col-sm-8">
+                                    <input id="birthday" name="birthday" class="form-control" type="text" maxlength="50">
+                                </div>
+                             </div>
+                              <div class="form-group"> 
+                                <label class="col-sm-3 control-label">用户是否锁：</label>
+                                <div class="col-sm-8">
+                                 <select class="form-control" id="locked" style="width:200px;height:35px" name="locked" required="" aria-required="true">
+									<option value="0">否</option>
+									<option value="1">是</option>
+ 								</select>
+                                </div>
+                            </div>
+                             <div class="form-group"> 
+                                <label class="col-sm-3 control-label">状态：</label>
+                                <div class="col-sm-8">
+                                 <select class="form-control" id="status" style="width:200px;height:35px" name="status" required="" aria-required="true">
+									<option value="ACTIVE">启用</option>
+									<option value="INACTIVE">停用</option>
+								</select>
+                                </div>
+                            </div>
+                              <div class="form-group">
+                                <label class="col-sm-3 control-label">用户备注：</label>
+                                <div class="col-sm-8">
+                                    <textarea rows="2" id="remark" name="remark" class="form-control" maxlength="500" ></textarea>
+                                </div> 
+                             </div>
+                              
+                             <div class="form-group">
+                                <div class="col-sm-8 col-sm-offset-3">
+                                    <button class="btn btn-hight-light" id="submitBut"  type="submit">提交</button>
+                                </div>
+                            </div>
+                          
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+ 
+    </div>
+   
+    <script type="text/javascript" src="../../assets/js/public.js"></script>
+
+     <script src="../../assets/js/plugins/datapicker/bootstrap-datepicker.js"></script>
+    <script type="text/javascript">
+     $(document).ready(function () {
+  	  	var id=GetQueryString("id");
+  	  	if(id){
+	  		$.ajax({
+    		   type: "GET",
+    		   dataType: "json",
+    		   url: '../../system-user/list/'+id,
+    		   success: function(data){
+    			   if(data){
+         			   $('#frm').formEdit(data);
+        		  	   $("#id").attr("disabled","disabled");
+        		  	   $("#pkId").val(data.id);
+        		  	   $("#password").val("");
+        		  	   $("#divConfirmPassword").find("div").html("<input id=\"confirmPassword\" name=\"confirmPassword\" class=\"form-control\"  type=\"password\"  equalTo=\"#password\"   minlength=\"5\" maxlength=\"50\">");
+                       $("#divPassword").find("div").html("<input id=\"password\" name=\"password\" class=\"form-control\" type=\"password\"    minlength=\"5\" maxlength=\"50\">");
+
+        		  	    // $("#confirmPassword").val(data.password);
+        		  	  // $("#divPassword").hide();
+         		  	 //  $("#divConfirmPassword").hide();
+         		  	  $("#action").val("update");
+    			   }
+    		   }
+    		});
+	  	}
+ 	    
+	    var  rules= {
+	    	  email: {
+	     	      email: true
+	      	      } ,
+ 	    	    birthday: {
+	    	      dateISO: true
+	       	   } 	 
+		    };
+	    fromValidate(rules,"../../system-user/save-update");
+ 	   
+ 	    $('#birthday').datepicker({
+ 	    	 language: "zh-CN", 
+ 	    	 autoclose: true, 
+ 	    	 format: "yyyy-mm-dd"
+	    });
+	   
+    });
+    </script>
+
+</body>
+
+</html>

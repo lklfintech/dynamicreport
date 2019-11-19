@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+<title>Dubbo服务</title>
+<meta name="keywords" content="">
+<meta name="description" content="">
+
+<link rel="shortcut icon" href="favicon.ico">
+<link href="../../assets/css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+<link href="../../assets/css/font-awesome.css?v=4.4.0" rel="stylesheet">
+<link href="../../assets/css/animate.css" rel="stylesheet">
+<link href="../../assets/css/style.css?v=4.1.0" rel="stylesheet">
+
+</head>
+
+<body class="gray-bg">
+	<div class="wrapper wrapper-content animated fadeInRight">
+		<div class="row">
+			<div class="col-sm-12">
+				<div class="ibox float-e-margins">
+					<div class="ibox-content">
+						<form class="form-horizontal m-t" id="frm" method="post">
+							<div class="form-group">
+								<label class="col-sm-3 control-label">ZK注册中心：</label>
+								<div class="col-sm-8">
+									<input id="address" name="address"class="form-control" type="text" maxlength="100">
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">接口：</label>
+								<div class="col-sm-8">
+									<input id="interfaceName" name="interfaceName" class="form-control" type="text" maxlength="100">
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">方法：</label>
+								<div class="col-sm-8">
+									<input id="method" name="method" class="form-control" type="text" maxlength="100">
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">应用名：</label>
+								<div class="col-sm-8">
+									<input id="applicationName" name="applicationName" class="form-control" type="text" maxlength="100" >
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">协议名：</label>
+								<div class="col-sm-8">
+									<input id="protocolName" name="protocolName" class="form-control" type="text" maxlength="100" >
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">协议端口：</label>
+								<div class="col-sm-8">
+									<input id="protocolPort" name="protocolPort" class="form-control" type="text" maxlength="100" >
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-3 control-label">版本：</label>
+								<div class="col-sm-8">
+									<input id="version" name="version" class="form-control" type="text" maxlength="100" >
+								</div>
+							</div>
+							
+							<div class="form-group">
+								<label class="col-sm-3 control-label">组：</label>
+								<div class="col-sm-8">
+									<input id="serviceGroup" name="serviceGroup" class="form-control" type="text" maxlength="100" >
+								</div>
+							</div>
+							
+							<div id="params"></div>
+							<div id="explain">
+								<label class="col-sm-3 control-label"></label>
+								<div class="col-sm-8">
+									<span id="explain" style="word-wrap:break-word; word-break:break-all;color: #a54242; ">
+										参数类型说明 </br>Others :  非以下三种类型使用Others
+													</br>List   :  data1,data2,data3
+													</br>Map    :  {"name":"张三","age":"30","sex":"男"}
+													</br>Date   :  特殊格式请声明#分割格式 20180910 13:32:43#yyyyMMdd HH:mm:ss,默认格式yyy-MM-dd    
+									</span>
+ 								</div>
+							</div>
+							
+							<div class="form-group">
+								<div class="col-sm-8 col-sm-offset-3">
+									<button class="btn btn-primary" id="submit" type="submit">提交</button>
+								    <button class="btn btn-success " type="button" onclick="addPar();" id="addBtn"><i class="fa fa-plus"></i>增加参数</button>
+								</div>
+								<div class="col-sm-8 col-sm-offset-3" >
+									<span id="testResult" style="word-wrap:break-word; word-break:break-all; "></span>
+								</div>
+							</div>
+							
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</div>
+
+
+	<!-- 全局js -->
+	<script src="../../assets/js/jquery.min.js?v=2.1.4"></script>
+	<script src="../../assets/js/bootstrap.min.js?v=3.3.6"></script>
+
+	<!-- 自定义js -->
+	<script src="../../assets/js/content.js?v=1.0.0"></script>
+
+	<!-- jQuery Validation plugin javascript-->
+	<script src="../../assets/js/plugins/validate/jquery.validate.min.js"></script>
+	<script
+		src="../../assets/js/plugins/validate/additional-methods.min.js"></script>
+	<script src="../../assets/js/plugins/validate/messages_zh.min.js"></script>
+	<script src="../../assets/js/plugins/layer/layer.min.js"></script>
+	<script src="../../assets/js/plugins/layer/laydate/laydate.js"></script>
+	<script src="../../assets/common/formUtils.js"></script>
+	<script type="text/javascript">
+	var infos=[];
+	var paramCount=0;
+    $(document).ready(function () {
+    	 $("#frm").validate({
+     	    rules: {
+     	    	address: {
+     	        required: true,
+     	        minlength: 1,
+     	    	maxlength: 100
+     	      },interfaceName: {
+     	    	required: true,
+     	        minlength: 1,
+     	    	maxlength: 100
+     	      },method: {
+     	    	required: true,
+     	        minlength: 1,
+     	    	maxlength: 100
+     	      }
+     	    },
+     	    messages: {},
+     	    submitHandler:function(form){
+     	    	 $("#submit").text("提交中..");
+    			 $("#submit"). disabled=true;
+    			 $("#testResult").empty();
+    			var params=$('form').serializeArray();
+     	    	$.ajax({
+    	    		   type: "POST",
+    	    		   dataType: "json",
+    	    		   url: "../../dubbo-generic/generic-invoke",
+    	    		   data: {json:JSON.stringify(params)},
+    	    		   success: function(msg){
+    	    			  $("#submit").text("提交");
+    	      			  $("#submit"). disabled=false;
+    	    			  $("#testResult").html("结果</br>"+msg.obj);
+    	    		   }
+    	    		});
+             } 
+     	});
+     })
+	function addPar(){
+    	paramCount++;
+		var param=  '<div class="form-group" id="paramDiv_'+paramCount+'">'+
+					'	<label class="col-sm-3 control-label">参数：</label>'+
+					'	<div class="col-sm-4">'+
+					'		<input id="param_'+paramCount+'" name="param_'+paramCount+'" class="form-control" type="text" maxlength="100">'+
+					'	</div>'+
+					'	<label class="col-sm-1 control-label">类型：</label>'+
+					'	<div class="col-sm-2">'+
+					'		<select class="form-control" id="type_'+paramCount+'" name="type_'+paramCount+'"  aria-required="true">'+
+					'			<option value="others">Others</option>'+
+					'			<option value="map">Map</option>'+
+					'			<option value="list">List</option>'+
+					'			<option value="date">Date</option>'+
+					'		</select>'+
+					'	</div>'+
+					'	<div class="col-sm-1">'+
+					'		<button class="btn btn-danger " type="button" onclick="delParam(\'paramDiv_'+paramCount+'\');" id="delPar"><i class="fa fa-remove"></i>删除</button>'+
+					'	</div>'+
+ 					'</div>';
+	  	$('#params').append(param);
+	}
+    
+	function delParam(paramDiv){
+		$('#'+paramDiv).remove();	 
+	}
+	
+    </script>
+
+</body>
+
+</html>

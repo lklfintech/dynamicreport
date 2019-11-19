@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据集操作</title>
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+    <link rel="shortcut icon" href="favicon.ico">
+    <link href="../../assets/css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+    <link href="../../assets/css/font-awesome.css?v=4.4.0" rel="stylesheet">
+    <link href="../../assets/css/animate.css" rel="stylesheet">
+    <link href="../../assets/css/style.css?v=4.1.0" rel="stylesheet">
+    <!-- sql语法高亮-->
+    <link rel="stylesheet" href="../../assets/css/codemirror.css">
+    <script type="text/javascript" src="../../assets/js/plugins/highlight/codemirror.js"></script>
+    <script type="text/javascript" src="../../assets/js/plugins/highlight/sql.js"></script>
+</head>
+<body class="gray-bg">
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-sm-8">
+            <div class="ibox float-e-margins">
+                <div class="ibox-content">
+                    <form class="form-horizontal m-t" id="frm" method="post">
+                        <input type="hidden" id="id" name="id">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">唯一标识：</label>
+                            <div class="col-sm-8">
+                                <input id="identifier" name="identifier"
+                                       class="form-control alphanumeric" type="text" maxlength="100">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">名称：</label>
+                            <div class="col-sm-8">
+                                <input id="name" name="name" class="form-control" type="text"
+                                       maxlength="100">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">查询SQL：</label>
+                            <div class="col-sm-8">
+                                <textarea id="querySql" name="querySql" maxlength="500"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">数据源：</label>
+                            <div class="col-sm-8">
+                                <select class="form-control" id="dataSource" style="width: 200px;"
+                                        name="dataSource" required="" aria-required="true">
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">查询记录数：
+                                <a href="#" id="recordCntTooltip" data-toggle="tooltip" title="仅Hive查询时需要指定查询记录数"><i
+                                        class="fa fa-question-circle"></i></a>
+                            </label>
+                            <div class="col-sm-8">
+                                <input class="form-control" id="recordCnt" name="recordCnt" type="text" maxlength="10">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">状态：</label>
+                            <div class="col-sm-8">
+                                <select class="form-control" id="status" style="width: 200px;"
+                                        name="status" required="" aria-required="true">
+                                    <option value="ACTIVE">启用</option>
+                                    <option value="INACTIVE">停用</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">描述：</label>
+                            <div class="col-sm-8">
+									<textarea rows="6" id="description" name="description"
+                                              class="form-control" maxlength="500"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-8 col-sm-offset-3">
+                                <button class="btn btn-primary" type="submit">提交</button>
+                                <button class="btn btn-primary" type="button" onclick="testSql()">测试</button>
+                                <button class="btn btn-primary" type="button" onclick="changSql('CHANG_GROUP')">转换组
+                                </button>
+                                <button class="btn btn-primary" type="button" onclick="changSql('EXECUTE')">转换参数
+                                </button>
+                            </div>
+                            <div class="col-sm-8 col-sm-offset-3">
+                                <span id="testResult" style="word-wrap:break-word; word-break:break-all; "></span>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-4">
+            <div class="panel-group">
+                <div class="panel panel-default">
+                    <div id="collapseOne" class="panel-collapse collapse in">
+                        <div class="panel-body">
+                            <ul class="todo-list m-t">
+                                <li>
+                                    <button type="button" class="btn btn-info m-r-sm"
+                                            onclick="genFunVariable(' (  ) ')">( )
+                                    </button>
+                                    <button type="button" class="btn btn-info m-r-sm"
+                                            onclick="genFunVariable(' where 1=1 and ')">where
+                                    </button>
+                                </li>
+
+                                <li>
+                                    <button type="button" class="btn btn-info m-r-sm" onclick="genFunVariable(' and ')">
+                                        and
+                                    </button>
+                                    <button type="button" class="btn btn-info m-r-sm" onclick="genFunVariable(' or ')">
+                                        or
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-4">
+            <div class="panel-group">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <a data-toggle="collapse" data-parent="#accordion"
+                               href="#collapseTwo">
+                                参数组搜索
+                            </a>
+                            <input type="text" id="dataParameterGroupText" class="form-control">
+                        </h4>
+                    </div>
+                    <div id="collapseTwo" class="panel-collapse collapse in">
+                        <div class="panel-body">
+                            <ul class="todo-list m-t" id="dataParameterGroupList">
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- 全局js -->
+<script src="../../assets/js/jquery.min.js?v=2.1.4"></script>
+<script src="../../assets/js/bootstrap.min.js?v=3.3.6"></script>
+
+<!-- 自定义js -->
+<script src="../../assets/js/content.js?v=1.0.0"></script>
+
+<!-- jQuery Validation plugin javascript-->
+<script src="../../assets/js/plugins/validate/jquery.validate.min.js"></script>
+<script
+        src="../../assets/js/plugins/validate/additional-methods.min.js"></script>
+<script src="../../assets/js/plugins/validate/messages_zh.min.js"></script>
+<script src="../../assets/js/plugins/layer/layer.min.js"></script>
+<script src="../../assets/js/plugins/layer/laydate/laydate.js"></script>
+<script src="../../assets/common/formUtils.js"></script>
+<script type="text/javascript">
+    var editor;
+    $(document).ready(function () {
+        editor = CodeMirror.fromTextArea(document.getElementById("querySql"), {
+            mode: "text/x-mariadb",
+            textWrapping: false,
+            lineWrapping: true,
+            auto: 'auto',
+            showCursorWhenSelecting: true,
+            cursorBlinkRate: 200
+
+        });
+
+        $.ajax({
+            type: 'GET',
+            url: '../../data-list/data-sources',
+            dataType: 'json',
+            async: false,
+            success: function (data) {
+                var len = data.length;
+                $("#dataSource").find('option').remove();
+                $("#dataSource").append($('<option value=\'\'>' + "---请选择数据源---" + '</option>'));
+                for (i = 0; i < len; i++) {
+                    $("#dataSource").append($('<option value=' + data[i].id + '>' + data[i].identifier + '</option>'));
+                }
+            }
+        })
+
+        var id = GetQueryString("id");
+        if (id) {
+            $("#identifier").attr("disabled", "disabled");
+            $.ajax({
+                type: "GET",
+                dataType: "json",
+                url: '../../data-list/list/' + id,
+                success: function (data) {
+                    $('#frm').formEdit(data);
+                    $("#dataSource option").each(function () {
+                        if ($(this)[0].value == data.dataSource.id) {
+                            $(this).attr("selected", "selected");
+                        }
+                    });
+
+
+                    editor.setValue(data.querySql)
+                }
+            });
+        }
+        $("#frm").validate({
+            rules: {
+                identifier: {
+                    required: true,
+                    minlength: 1,
+                    maxlength: 100
+                }, name: {
+                    required: true,
+                    minlength: 1,
+                    maxlength: 100
+                }, querySql: {
+                    required: true,
+                    minlength: 1
+                }, dataSource: {
+                    required: true,
+                    maxlength: 100
+                }, description: {
+                    required: false,
+                    maxlength: 500
+                }
+            },
+            messages: {},
+            submitHandler: function (form) {
+                var identifier = $('#identifier').val();
+                var reg = /^[a-zA-Z].*$/;
+                if (!reg.test(identifier)) {
+                    layer.msg('唯一标识必须以英文字母开头，只能包含英文字母、数字、下划线！', {time: 2000}, function () {
+
+                    });
+                    $('#identifier').focus();
+                    return;
+                }
+                $.ajax({
+                    type: "POST",
+                    dataType: "json",
+                    url: "../../data-list/save-update",
+                    data: $(form).serialize(),
+                    success: function (msg) {
+                        layer.msg(msg.msg, {time: 2000}, function () {
+                            if (msg.success) {
+                                var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+                                parent.layer.close(index);
+                            }
+                        });
+                    }
+                });
+            }
+        });
+        //初始化
+        searchDataParamterGroup();
+        //输入框正在输入时
+        $("#dataParameterGroupText").on('input', function () {
+            searchDataParamterGroup();
+        })
+    });
+
+    function searchDataParamterGroup(id) {
+        $('#dataParameterGroupList').html('');
+        var searchText = $("#dataParameterGroupText").val();
+        //数据参数组列表初始化
+        $.ajax({
+            type: "GET",
+            dataType: "json",
+            url: "../../data-parameter-group/list-all",
+            data: {'searchText': searchText},
+            success: function (result) {
+                if (result) {
+                    var itemL = '';
+                    for (var i = 0; i < result.length; i++) {
+                        var item = result[i];
+                        itemL += '<li>';
+                        itemL += '<button type="button" class="btn btn-info m-r-sm" onclick="genFunVariable(\' ({' + item.identifier + '}) \')">' + item.identifier + '(' + item.name + ')</button>';
+                        itemL += '</li>';
+                    }
+                    $('#dataParameterGroupList').append(itemL);
+                }
+            }
+        });
+    }
+
+    function testSql() {
+        var ds = 0;
+        var sql = editor.getValue();
+        $("#dataSource option").each(function () {
+            if ($(this)[0].selected == true) {
+                ds = $(this)[0].value;
+            }
+        });
+        if (!(sql && sql.length > 0)) {
+            alert('请输入SQL');
+        }
+        if (ds == 0) {
+            alert('请选择数据源!');
+        }
+
+        $.ajax({
+            type: "GET",
+            dataType: "json",
+            url: "../../data-list/sql-test",
+            data: {dataSource: ds, querySql: sql},
+            success: function (msg) {
+                $("#testResult").html("测试结果</br>" + msg.msg);
+            }
+
+        });
+    }
+
+    function changSql(flag) {
+        var ds = 0;
+        var sql = editor.getValue();
+        $("#dataSource option").each(function () {
+            if ($(this)[0].selected == true) {
+                ds = $(this)[0].value;
+            }
+        });
+        if (!(sql && sql.length > 0)) {
+            alert('请输入SQL');
+        }
+        if (ds == 0) {
+            alert('请选择数据源!');
+        }
+
+        $.ajax({
+            type: "PUT",
+            dataType: "json",
+            url: "../../data-list/transfer-sql",
+            data: {dataSource: ds, querySql: sql, description: flag},
+            success: function (msg) {
+                $("#testResult").html("转换结果</br>" + msg.msg);
+            }
+
+        });
+    }
+
+    function genFunVariable(textFeildValue) {
+        editor.replaceSelection(textFeildValue);
+    }
+
+</script>
+</body>
+</html>

@@ -1,0 +1,307 @@
+/*修改默认字体*/
+body,button, input, select, textarea,h1 ,h2, h3, h4, h5, h6 { font-family: Microsoft YaHei,'宋体' , Tahoma, Helvetica, Arial, "\5b8b\4f53", sans-serif;}
+
+body {
+    background-color: #fff;
+}
+
+#wrapper {
+    width: 100%;
+}
+
+#page-wrapper {
+    padding: 0 15px;
+    min-height: 568px;
+    background-color: #fff;
+}
+
+/*@media(min-width:768px) {*/
+    #page-wrapper {
+        position: inherit;
+        margin: 0 0 0 230px;
+        padding: 0 15px;
+        border-left: 1px solid #e7e7e7;
+    }
+/*}*/
+
+.navbar-top-links {
+    margin-right: 0;
+}
+
+.navbar-top-links li {
+    display: inline-block;
+}
+
+.navbar-top-links li:last-child {
+    margin-right: 15px;
+}
+
+.navbar-top-links li a {
+    padding: 15px;
+    min-height: 50px;
+}
+
+.navbar-top-links .dropdown-menu li {
+    display: block;
+}
+
+.navbar-top-links .dropdown-menu li:last-child {
+    margin-right: 0;
+}
+
+.navbar-top-links .dropdown-menu li a {
+    padding: 3px 20px;
+    min-height: 0;
+}
+
+.navbar-top-links .dropdown-menu li a div {
+    white-space: normal;
+}
+
+.navbar-top-links .dropdown-messages,
+.navbar-top-links .dropdown-tasks,
+.navbar-top-links .dropdown-alerts {
+    width: 310px;
+    min-width: 0;
+}
+
+.navbar-top-links .dropdown-messages {
+    margin-left: 5px;
+}
+
+.navbar-top-links .dropdown-tasks {
+    margin-left: -59px;
+}
+
+.navbar-top-links .dropdown-alerts {
+    margin-left: -123px;
+}
+
+.navbar-top-links .dropdown-user {
+    right: 0;
+    left: auto;
+}
+
+.sidebar .sidebar-nav.navbar-collapse {
+    padding-right: 0;
+    padding-left: 0;
+}
+
+.sidebar .sidebar-search {
+    padding: 15px;
+}
+
+.sidebar ul li {
+    border-bottom: 1px solid #e7e7e7;
+}
+
+.sidebar ul li a.active {
+    background-color: #eee;
+}
+
+.sidebar .arrow {
+    float: right;
+}
+
+.sidebar .fa.arrow:before {
+    content: "\f104";
+}
+
+.sidebar .active>a>.fa.arrow:before {
+    content: "\f107";
+}
+
+.sidebar .nav-second-level li,
+.sidebar .nav-third-level li，
+.sidebar .nav-fourth-level li,
+.sidebar .nav-2-level li,
+.sidebar .nav-3-level li，
+.sidebar .nav-4-level li {
+    border-bottom: 0!important;
+}
+
+.sidebar .nav-second-level li a,
+.sidebar .nav-2-level li a {
+    padding-left: 35px;
+}
+
+.sidebar .nav-third-level li a,
+.sidebar .nav-3-level li a {
+    padding-left: 52px;
+}
+.sidebar .nav-fourth-level li a,
+.sidebar .nav-4-level li a {
+    padding-left: 69px;
+}
+
+/*@media(min-width:768px) {*/
+    .sidebar {
+        z-index: 1;
+        /*position: absolute;*/
+        width: 230px;
+        float:left;
+        /*margin-top: 51px;*/
+    }
+
+    .navbar-top-links .dropdown-messages,
+    .navbar-top-links .dropdown-tasks,
+    .navbar-top-links .dropdown-alerts,
+    .navbar-top-links .dropdown-user {
+        margin-left: auto;
+    }
+/*}*/
+
+.page-header {
+  padding-bottom: 10px;
+  margin: 15px 0 15px;
+  border-bottom: 1px solid #eee;
+}
+.breadcrumb{
+	margin-bottom:5px;
+}
+
+.navbar-brand{
+	height:50px;
+	width: 145px;
+	background: url("../i/logo.jpg") no-repeat;
+	margin-left:22px;
+}
+.navbar-brand-title{
+	font-size:1.2em;
+	position:relative;
+	top:22px;
+	color:#0E5FA2;
+	font-weight: bolder;
+	font-style: italic;
+}
+
+.toolbar{
+	margin-top: 15px;
+	margin-bottom: 5px;
+	padding-left:1px;
+}
+form .toolbar{
+	padding-left:8px;
+}
+
+table tbody tr td .btn,.table-td-btn{
+  padding: 1px 5px;
+  font-size: 12px;
+  line-height: 1.5;
+  border-radius: 3px;
+}
+
+
+.tab-content{
+	padding:15px;
+}
+ 
+
+.control-label{
+	line-height: 2.4em;
+	font-weight: normal;
+	margin-top:0;
+	margin-bottom:0;
+	text-align: right;
+	
+} 
+
+form .form-control{
+	padding:6px 8px;
+	display: inline-block;
+}
+
+label.checkbox-ar, label.radio-ar{
+	padding-left:8px;
+	padding-top: 5px;
+	font-weight: normal;
+}
+.checkbox-ar input[type=checkbox], .radio-ar input[type=radio]{
+	margin-right:2px;
+	position: relative;
+    top: 1px;
+}
+
+.ar-fieldset{}
+.ar-fieldset legend{
+	font-size:1em;
+	margin-bottom:15px;
+}
+
+.ar-hr{
+	padding:0 0;
+	margin:0 15px;
+}
+
+.close-tab {
+    font-size: 10px;
+    position:absolute;
+    right: 5px;
+    top: 5px;
+    padding-left: 25px;
+    z-index: 100;
+    cursor: hand;
+    cursor: pointer;
+    color: #94A6B0;
+    display: none;
+}
+
+.ar-gotop{
+	position: fixed;
+	bottom: 3px;
+	right: 17px;
+	z-index: 9;
+	cursor: auto;
+}
+
+.ui-dialog-body{
+	padding:0;
+}
+
+#top-html,#top-body,#wrapper,#page-wrapper{
+    height:100%;
+    overflow:hidden;
+}
+#side-menu{
+    overflow:auto;
+}
+
+.checkbox input[type=checkbox], .checkbox-inline input[type=checkbox], .radio input[type=radio], .radio-inline input[type=radio] {
+  margin-left: -16px;
+}
+
+.checkbox label, .radio label {
+  margin-right: 8px;
+}
+
+.label-only{
+	  line-height: 2.4em;
+	  font-weight: normal;
+	  margin-top: 0;
+	  margin-bottom: 0;
+}
+
+.form-group .checkbox,.form-group .radio{
+	margin-top:7px;
+	margin-bottom:7px;
+}
+
+/*瘦表格 在table的class上加thin-table */
+.thin-table{}
+table.thin-table thead th .th-inner, table.thin-table tbody td .th-inner {
+  padding: 4px 5px;
+  line-height: 20px;
+}
+table.thin-table .bs-checkbox .th-inner {
+  padding: 4px 0;
+}
+table.thin-table tbody tr td,table.thin-table tr td {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+table.thin-table tbody tr td .btn {
+  padding: 1px 5px;
+  font-size: 12px;
+  line-height: 14px;
+  border-radius: 3px;
+}

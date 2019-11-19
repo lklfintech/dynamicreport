@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>功能管理</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+     	
+   
+    
+    <link rel="shortcut icon" href="favicon.ico"> 
+    <link rel="stylesheet" type="text/css" href="../../assets/css/bootstrap-dialog/bootstrap-dialog.min.css">
+    <script type="text/javascript" src="../../assets/js/public_css.js"></script> 
+	<script type="text/javascript" src="../../assets/js/public.js"></script>
+	<script src="../../assets/js/plugins/treeview/bootstrap-treeview.js"></script>
+	<!--bootstrap-dialog end-->
+
+</head>
+
+<body class="gray-bg">
+    <div class="wrapper wrapper-content  animated fadeInRight">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="ibox ">
+                    <div class="ibox-title">
+                        <h5>功能管理</h5>
+                    </div>
+                    <div class="ibox-content">
+                    	<div class="row row-lg">
+		                    <div class="col-sm-12">
+		                        <!-- Example Card View -->
+		                        <div class="example-wrap">
+		                            <div class="example">
+		                            	<div class="hidden-xs" id="tableToolbar" role="group">
+		                            		<!--
+		                            		<button type="button" class="btn btn-outline btn-default" onclick="add();" id="addBtn">
+		                                        <i class="glyphicon glyphicon-plus" aria-hidden="true"></i>
+		                                    </button>
+		                                    -->
+		                                    <button type="button" class="btn btn-hight-light" id="btnAdd" title="添加">
+		                                        <i class="fa fa-plus" aria-hidden="true"></i>&nbsp;添加
+		                                    </button>
+		                                    <button type="button" class="btn btn-default" id="openAllChild">
+												<i class="fa fa-caret-square-o-down" aria-hidden="true"></i>&nbsp;全部展开
+											</button>
+											<button type="button" class="btn btn-default" id="hideAllChild">
+												<i class="fa fa-caret-square-o-right" aria-hidden="true"></i>&nbsp;全部折叠
+											</button>
+		                                </div>
+		                            	<table id="table_list" data-mobile-responsive="true" style="table-layout: fixed;word-break:break-all; word-wrap:break-all;"></table>
+		                            </div>
+		                        </div>
+		                        <!-- End Example Card View -->
+		                    </div>
+	                    </div>
+                    	<table id="table_list" data-mobile-responsive="true" style="table-layout: fixed;word-break:break-all; word-wrap:break-all;"></table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+	<div>
+		<!--弹出框 新增权限 start-->
+		<div class="modal fade" id="addOperation-dialog" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+			<div class="modal-dialog" role="document">
+
+				<div class="modal-content radius_5">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title" id="myModalLabel">新增</h4>
+					</div>
+					 <form class="form-horizontal m-t" id="frm" method="post">
+                         	<input type="hidden" id="action" name="action" value="add">
+                         	<input type="hidden" id="pkId" name="pkId">
+                         	<input type="hidden" id="parentId" name="parentId">
+                        	<div class="form-group" style="margin-top: 10px;"> 
+                                <label class="col-sm-3 control-label">功能ID：</label>
+                                <div class="col-sm-8">
+                                    <input id="id" name="id"   class="form-control" type="text" required=""  aria-required="true" maxlength="100">
+                                </div>
+                            </div>
+
+						 	<div class="form-group">
+                                <label class="col-sm-3 control-label">功能名称：</label>
+                                <div class="col-sm-8">
+                                    <input id="name" name="name" class="form-control"  minlength="2" type="text" required="" aria-required="true" maxlength="50">
+                                </div>
+                            </div>
+
+                             <div class="form-group"> 
+                                <label class="col-sm-3 control-label">父类功能：</label>
+                                <div class="col-sm-8"> 
+                               <!--   <select class="form-control" id="parent"   name="parent"  style="width:200px;"  >
+									<option value=""></option>
+								</select> -->
+									<input type="text" id="parent" name="parent" class="form-control" value="" autocomplete="off" onblur="setParentId()" onclick="showtreeview()" placeholder="父类功能">
+									<div tabindex="0" hidefocus="true" id="treeview" onblur="hidetreeview()"></div>
+                            	</div>
+							 </div>
+                         
+                             <div class="form-group">
+                                <label class="col-sm-3 control-label">类型：</label>
+                                <div class="col-sm-8">
+                                	<select class="form-control" id="type"   name="type"  style="width:200px;height:35px"  >
+                               		 	<option value="menu">菜单</option>
+                               		 	<option value="button">按钮</option>
+ 									</select>
+                             	</div>
+							 </div>
+                             
+                             <div class="form-group">
+                                <label class="col-sm-3 control-label">排序：</label>
+                                <div class="col-sm-8">
+                                    <input id="sequence" name="sequence" class="form-control"  type="text"   maxlength="11">
+                                </div>
+                            </div>
+
+                             <div class="form-group" >
+                                <label class="col-sm-3 control-label">备注：</label>
+                                <div class="col-sm-8">
+                                    <textarea rows="2" id="description" name="description" class="form-control" style="width: 378px; height: 70px;"    maxlength="200"></textarea>
+                                </div> 
+                             </div>
+
+						 <div class="modal-footer" style="border-top-width: 0px;vertical-align:middle; padding-right: 50px;">
+						  	<button class="btn btn-hight-light" type="submit"  id="submitBut" >保存</button>
+							<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+						 </div>
+					 </form>
+				</div>
+			</div>
+		</div>
+		<!--弹出框 新增权限 end-->
+		 
+	</div>
+	
+	<script type="text/javascript">
+		$(document).ready(function () {
+			//初始化表格,动态从服务器加载数据  
+			$("#table_list").bootstrapTable({
+			    //使用get请求到服务器获取数据  
+			    method: "GET",
+			    //必须设置，不然request.getParameter获取不到请求参数
+			    contentType: "application/json",
+			    //获取数据的Servlet地址  
+			    url: "../../system-funtion/list-all",
+			    toolbar: '#tableToolbar',
+			    //表格显示条纹  
+			    striped: true,
+			    showRefresh: false,
+			    //启动分页  
+			    pagination: false,
+			    //每页显示的记录数  
+			    pageSize: 10,
+			    //当前第几页  
+			    pageNumber: 1,
+			    //记录数可选列表  
+			    pageList: [5, 10, 15, 20, 25,2000],
+			    //是否启用查询  
+			    search: false,
+			    //是否启用详细信息视图
+			    detailView:false,
+			    detailFormatter:detailFormatter,
+			    //表示服务端请求  
+			    sidePagination: "server",
+			    //设置为undefined可以获取pageNumber，pageSize，searchText，sortName，sortOrder  
+			    //设置为limit可以获取limit, offset, search, sort, order  
+			    queryParamsType: "undefined",
+			    sortable: false,
+			    uniqueId: "ID", 
+			    //json数据解析
+			    responseHandler: function(res) {
+			        return {
+			            "rows": formatArrObj(res),
+			            "total": formatArrObj(res)
+			        };
+			    },
+			    rowStyle: function(row, index){			    	
+			    	var index_id = row.indexId;
+			    	var index_id_arr = index_id.toString().split('-');
+			    	var index_id_length = index_id_arr.length;	
+			    	if (index_id_length > 1) {
+			    		// 为了更好的控制显示隐藏，这里对应点击元素的属性，只到上一级
+			    		index_id_arr.splice(index_id_length - 1, 1);
+				    	var child_id_str = index_id_arr.join('-'); // child_id_str只到上一级，这样上一级点击的时候，就可以显示其下面的所有子元素
+				    	
+			    		return {
+			    			classes: 'js-child-' + child_id_str + ' fn-hide js-child-tr' 
+			    		}
+			    	} else {
+			    		return {}
+			    	}
+			    	
+			    },
+			    //数据列
+			    columns: [{
+			        title: "排序",
+			        field: "pid",
+			        sortable: false,
+			        width:"20"
+			    }, {
+			        title: "名称",
+			        field: "text",
+			        sortable: true,
+			        width:"200",
+			        formatter: function (value, row, index) {				    							    		
+                    	var index_id = row.indexId;
+				    	var index_id_arr = index_id.toString().split('-');
+				    	var index_id_length = index_id_arr.length; // 当前元素的长度，也就是元素的层级 
+				    	var class_str = 'padd' + index_id_length;  // 用于控制缩进
+
+			    		if (!!row.hadChild) { // 元素有子元素 点击点i标签的属性child-id对应是当前元素的index_id,因为其子元素的class对应的就是这个
+			    			return '<div class="' + class_str + '"><i data-child-id="js-child-'  + index_id + '" class="arrow-left js-arrow"></i>' + row.text + '</span>'
+			    		} else {
+			    			return '<div class="' + class_str + '">' + row.text + '</span>'
+			    		}
+                    }
+			    },{
+			        title: "操作",
+			        field: "empty",
+			        width:"120",
+                    formatter: function (value, row, index) {
+	                     if(!contain(parent.globalPermissions,'system_funtion:saveOrUpdate')){
+	                   		 $("#addBut").attr("disabled","disabled");
+	                   	}
+	                    var operateHtml = '';
+	                   	if(contain(parent.globalPermissions,'system_funtion:saveOrUpdate')){
+	                    	var operateHtml = '<button class="btn btn-primary btn-xs" type="button" onclick="edit(\''+row.id+'\')"><i class="fa fa-edit"></i>&nbsp;修改</button> &nbsp;';
+	                   	}
+	                   	if(contain(parent.globalPermissions,'system_funtion:delete')){
+	                    	operateHtml = operateHtml + '<button class="btn btn-danger btn-xs" type="button" onclick="del(\''+row.id+'\')"><i class="fa fa-remove"></i>&nbsp;删除</button> &nbsp;';
+	                   	}
+	                    return operateHtml;
+                    }
+			    }]
+			});
+        });
+
+		// 格式化数据，使数据成为一维数组
+        function formatArrObj (arr) {
+			var new_arr = []; // 所有数据都保存在此，成为一维数据
+			var id = 0;       // 元素的序号 从1开始
+			// 把父级元素保存一份，每次递归进一层都把上一级保存起来，后面再去查询上一层是否还有其它子元素，没得话就再往上走一层，再查询，以此类推
+			var save_map_arr = []; 
+			var next_index = 2;    // 返回上一级，也就是inner_floor_arr返回到倒数第二个，这里是倒数
+
+			var formatArr = function (arr) {
+				arr.forEach(function (item, index) {
+					var floorId = index + 1; // 元素的层级
+					var new_item = JSON.stringify(item);
+					var obj = JSON.parse(new_item);
+					var nodes = obj.nodes;
+					delete obj.nodes;
+					id++; 
+					obj.indexId = floorId; // 给元素添加层级
+					obj.pid = id; // 给元素添加序号
+					new_arr.push(obj);
+					if (nodes.length > 0) {
+						save_map_arr = [];
+						new_arr[new_arr.length-1].hadChild = 1; 
+						beatArr(item.nodes, [floorId]);
+					}					
+				})
+			}
+
+			var beatArr = function (arr_item, inner_floor_arr) {
+				var now_index = 0;  // 递归后元素当前的位置
+				var arr_item_length = arr_item.length;  // 当前数据的长度
+			    inner_floor_arr.push(now_index); // 递归后元素的层级加一级
+
+				arr_item.forEach(function (item, index) {
+					var new_item = JSON.stringify(item);
+					var obj = JSON.parse(new_item);
+					var nodes = obj.nodes;
+					delete obj.nodes;
+
+					id++; // 元素序号
+					now_index++; 
+					// 更新当前元素的层级
+					inner_floor_arr.splice(inner_floor_arr.length - 1 , 1, now_index);
+
+					obj.indexId = inner_floor_arr.join('-');
+					obj.pid = id;
+					new_arr.push(obj);
+					
+					if (nodes.length > 0) {
+						// 给有子级的数据添加一个标识，表示此数据下面还有子元素
+						new_arr[new_arr.length - 1].hadChild = 1;	
+						save_map_arr.push(item);
+						next_index = 2;
+						beatArr(nodes, inner_floor_arr);
+					} else {
+
+						// 如果已经是多级数据的最后一个，那么对应的层级要相应的少一层，也就是回到上一层的意思
+						if (now_index == arr_item_length) {
+							//console.log("first", inner_floor_arr); 
+							var inner_floor_arr_length = inner_floor_arr.length;
+							var save_map_arr_length = save_map_arr.length;
+							if (save_map_arr_length > 1) {	
+								// 最后一个数据可以清除掉，因为现在要遍历父级数据
+								save_map_arr.splice(save_map_arr_length - 1, 1);
+								// 从后往前遍历
+								for(var i = save_map_arr.length - 1; i > -1; i--) {	
+									// 如果没有兄弟元素，说明此级数据没有了，要再往上找，直到找到有								
+									if (save_map_arr[i]['nodes'].length == inner_floor_arr[inner_floor_arr_length - next_index]) {
+										next_index += 1;
+										save_map_arr.splice(save_map_arr_length - 1, 1);										
+									}
+								}								
+							} else {
+								save_map_arr.splice(save_map_arr_length - 1, 1);
+							}
+							// inner_floor_arr 回退到多少级，看next_index,2为回退一级，3为回退两级，4为回退三级，，，
+							inner_floor_arr.splice(inner_floor_arr_length - next_index , next_index, inner_floor_arr[inner_floor_arr_length - next_index] + 1 );
+							next_index = 2;
+						}   
+					}
+					
+				})
+			}
+
+			formatArr(arr);
+			return new_arr;
+		}
+
+		// 点击箭头显示隐藏对应的子级
+		$('body').on('click', '.js-arrow', function () {
+			var $_this = $(this);
+			var this_child = $_this.data('child-id');
+			
+			// 显示
+			if ($_this.attr('is-open') === undefined || $_this.attr('is-open') == 0) {				
+				 $('.' + this_child).removeClass('fn-hide');
+				$_this.attr('is-open', 1);
+				$_this.addClass('active');
+			} else { // 隐藏
+				$_this.attr('is-open', 0);
+				$("tr[class^='" + this_child + "']").addClass('fn-hide');				 
+				$("i[data-child-id^='" + this_child + "']").removeClass('active').attr('is-open', 0);
+			}
+		});
+
+		// 全部展开
+		$('body').on('click', '#openAllChild', function () {
+			$('.js-arrow').addClass('active').attr('is-open', 1);
+			$('.js-child-tr').removeClass('fn-hide');
+		});
+
+		// 全部折叠
+		$('body').on('click', '#hideAllChild', function () {
+			$('.js-arrow').removeClass('active').attr('is-open', 0);
+			$('.js-child-tr').addClass('fn-hide');
+		});
+
+		$('body').on('click', '#btnAdd', function(){ 			
+			/* var node = $('#left-tree').treeview('getSelected');
+			if (node.length == 0) {
+				$.showMsgText('请选择节点');
+				return;
+			} */
+			$('#action').val('add');
+			$("#myModalLabel").html("添加");
+			$('#frm')[0].reset();
+			$('#id').removeAttr("disabled");
+			$('#pkId').val("");
+			$('#id').val("");
+			$('#addOperation-dialog').modal('show');
+            $("#treeview").hide();
+		});
+
+		// 更新时功父类为空时，设置parentId为空  
+		function setParentId(){
+ 		   var parent=$("#parent").val();
+		   if(parent==""||parent==null){
+			   $("#parentId").val("");
+		   }
+		}
+		function showtreeview() {
+            $('#treeview').show();
+            $('#treeview').focus();
+        }
+		function hidetreeview() {
+			$("#treeview").hide();
+        }
+
+		 // 更新时功父类为空时，设置parentId为空  
+		 function setPermissions(){
+			if(!contain(parent.globalPermissions,'system_funtion:saveOrUpdate')){
+				$("#btnAdd").hide();
+			}
+			if(!contain(parent.globalPermissions,'system_funtion:saveOrUpdate')){
+				$("#btnEdit").hide();
+			}
+			if(!contain(parent.globalPermissions,'system_funtion:saveOrUpdate')){
+				$("#btnAdd").hide();
+			}
+		}
+
+		$(document).ready(function () {
+		    $("#frm").validate({
+		    	rules: {
+ 	    	      function: {
+		        	   required: true
+	    	      } 
+ 	       	    },
+	    	    messages: {
+	       	    },
+	    	    submitHandler:function(form){
+	    	    	$("#submitBut").attr("disabled","disabled");
+ 	    	    	$.ajax({
+	   	    		   type: "POST",
+	   	    		   dataType: "json",
+	   	    		   url: "../../system-funtion/save-update",
+	   	    		   data: $(form).serialize(),
+	   	    		   success: function(msg){
+		   	    			layer.msg(msg.msg, {time: 2000},function(){
+		   	    				$('#addOperation-dialog').modal('hide');
+		   	    				window.location.reload();
+		   					});
+	   	    		   }
+	   	    		});
+	            } 
+	    	});
+		});
+		
+		BindEvent();
+		// 事件注册
+		function BindEvent(){
+			// 保存-新增
+			$("#Save").click(function () {
+			//$('#addOperation-dialog').modal('hide')
+							/*    //静态添加节点
+							var parentNode = $('#left-tree').treeview('getSelected');
+							var node = {
+								text: $('#addName').val()
+							};
+							$('#left-tree').treeview('addNode', [node, parentNode]); */
+				$.ajax({
+					type: "POST",
+					dataType: "json",
+					url: "../../system-funtion/save-update",
+					data: $("#frm").serialize(),
+					success: function(msg){
+						layer.msg(msg.msg, {time: 1000},function(){
+							window.location.reload();
+							$('#addOperation-dialog').modal('hide');
+							//$('#left-tree').bootstrapTable("refresh");
+						});
+					}
+				});
+			});
+		}
+
+		 //页面加载
+		 onLoad();
+		 function onLoad () {
+			 $.ajax({
+				//type: "post",
+				url: '../../system-funtion/list-all',
+				//data: {id: ""},
+				dataType: "json",
+				success: function (result) {
+					
+					$("#treeview").treeview({
+						data: result,        
+						levels: 1,
+						highlightSelected: true, 
+						onNodeSelected:function(event, node){
+							$("#parent").val(node.text);
+							$("#parentId").val(node.id);
+							$("#treeview").hide();
+						},
+						showCheckbox:false//是否显示多选
+					}); 
+				},
+				error: function () {
+					alert("加载失败！")
+				}
+			});
+		}
+
+		function edit (id) {
+            $("#treeview").hide();
+			$("#myModalLabel").html("编辑");
+			$('#action').val('update');
+			$('#pkId').val(id);
+			$.ajax({
+				type: "GET",
+				dataType: "json",
+				url: "../../system-funtion/list/" + id,
+				//data: $("#frm").serialize(),
+				success:function(data){
+					setValue(data);
+					$("#id").attr("disabled","disabled");
+					if(data['parent']!=null){
+						setParentValue(data);
+						$("#parentId").val(data['parent'].id);
+					}
+				},error:function(x){  
+					$.showMsgText('查询失败');
+				}  
+			});  
+			$('#addOperation-dialog').modal('show');
+		}
+		
+		function setParentValue (obj) {    
+			$.ajax({
+				type: "GET",
+				dataType: "json",
+				url: "../../system-funtion/list/"+obj['parent'].id,
+				data:{id:obj['parent'].id},
+				success:function(data){
+					$("#parent").val(data.name);
+				},error:function(x){  
+					$.showMsgText('查询失败');
+				}  
+			});     
+		} 
+		
+			/** 
+		 *  
+		 * @param {} obj 
+		 * 将ajax访问后得到的对象进行遍历 再使用jquery其职放入到同属性名的dom元素中 
+		 */  
+			
+		function setValue (obj) {    
+			// 开始遍历     
+			for(var p in obj){        
+				// 方法    
+				if(typeof(obj[p])!="function"){        
+					$("#"+p).val(obj[p]);   
+				}         
+			}        
+		}  
+		
+		//删除
+		function del (id) {
+			var  pkId = id;
+			if(pkId == null || pkId == undefined || pkId == ""){
+				$.showMsgText('请选择你要删除的菜单功能!');
+				return;
+			}
+			layer.confirm('确定删除吗?', {icon: 3, title:'提示'}, function(){
+				$.ajax({
+					type: "DELETE",
+					dataType: "json",
+					url: "../../system-funtion/"+pkId,
+					data: {pkId:pkId},
+					success: function(msg){
+						layer.msg(msg.msg, {time: 1000},function(){
+							window.location.reload();
+							//$('#left-tree').bootstrapTable("refresh");
+						});
+					}   
+				});
+			});
+		}
+	</script>
+</body>
+</html>

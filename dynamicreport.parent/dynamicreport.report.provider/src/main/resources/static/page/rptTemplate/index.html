@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+    <link rel="shortcut icon" href="favicon.ico">
+    <link href="../../assets/css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+    <link href="../../assets/css/font-awesome.css?v=4.4.0" rel="stylesheet">
+    <link href="../../assets/css/animate.css" rel="stylesheet">
+    <link href="../../assets/css/style.css?v=4.1.0" rel="stylesheet">
+    <link href="../../assets/css/plugins/bootstrap-table/bootstrap-table.min.css" rel="stylesheet">
+    <link href="../../assets/css/plugins/multiselect/bootstrap-multiselect.css" rel="stylesheet">
+    <link href="../../assets/css/plugins/datapicker/datepicker3.css" rel="stylesheet">
+    <link href="../../assets/css/plugins/awesome-bootstrap-checkbox/awesome-bootstrap-checkbox.css" rel="stylesheet">
+    <link href="../../assets/css/plugins/bootstrap-table/fixed-columns/bootstrap-table-fixed-columns.min.css" rel="stylesheet">
+    <link href="../../assets/css/common.css" rel="stylesheet">
+    <link href="../../assets/css/bootstrap-select.min.css" rel="stylesheet">
+    <style>
+        .div-inline {
+            display: inline
+        }
+        .row{
+            margin-top: 10px;
+        }
+    </style>
+    <!-- 全局js -->
+    <script src="../../assets/js/jquery.min.js"></script>
+    <script src="../../assets/js/bootstrap.min.js?v=3.3.6"></script>
+    <script src="../../assets/js/content.js?v=1.0.0"></script>
+    <script src="../../assets/js/contabs.min.js"></script>
+    <!-- jQuery Validation plugin javascript -->
+    <script src="../../assets/js/plugins/validate/jquery.validate.min.js"></script>
+    <script src="../../assets/js/plugins/validate/messages_zh.min.js"></script>
+    <script src="../../assets/js/plugins/layer/layer.min.js"></script>
+    <script src="../../assets/js/plugins/layer/laydate/laydate.js"></script>
+    <script src="../../assets/js/plugins/datapicker/bootstrap-datepicker.js"></script>
+    <script src="../../assets/js/plugins/treeview/dialogMsg.js"></script>
+    <script src="../../assets/js/plugins/bootstrap-dialog/bootstrap-dialog.min.js"></script>
+    <!-- Bootstrap table -->
+    <script src="../../assets/js/plugins/bootstrap-table/bootstrap-table.min.js"></script>
+    <script src="../../assets/js/plugins/bootstrap-table/bootstrap-table-mobile.min.js"></script>
+    <script src="../../assets/js/plugins/bootstrap-table/locale/bootstrap-table-zh-CN.min.js"></script>
+    <!-- Peity -->
+    <script src="../../assets/js/plugins/peity/jquery.peity.min.js"></script>
+    <script src="../../assets/js/plugins/layer/layer.min.js"></script>
+    <script src="../../assets/js/plugins/echarts/echarts-all.js"></script>
+    <script src="../../assets/js/plugins/multiselect/bootstrap-multiselect.js"></script>
+    <!-- table export -->
+    <script src="../../assets/js/plugins/export/bootstrap-table-export.js"></script>
+    <script src="../../assets/js/plugins/export/tableExport.min.js"></script>
+    <script src="../../assets/js/plugins/export/xlsx.core.min.js"></script>
+    <script src="../../assets/js/plugins/export/FileSaver.min.js"></script>
+    <script src="../../assets/js/plugins/bootstrap-table/fixed-columns/bootstrap-table-fixed-columns.min.js"></script>
+    <script type="text/javascript" src="../../assets/js/bootstrap-select.min.js"></script>
+    <!-- customized -->
+    <script src="../../assets/js/rptTemplate/index.js"></script>
+</head>
+<body class="gray-bg">
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div id="formRow" class="row">
+        <div class="col-sm-12">
+            <div class="ibox">
+                <div class="ibox-title">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseParam">
+                        <h5 id="formTitle"></h5>
+                    </a>&nbsp;
+                    <a href="#" id="rptTooltip" data-toggle="tooltip" title=""><i class="fa fa-question-circle"></i></a>
+                </div>
+                <div id="collapseParam" class="ibox-content panel-collapse collapse in">
+                    <form class="form-horizontal m-t" id="frm" method="post">
+                        <div id="formDiv"></div>
+                        <div id="buttonDiv">
+                            <div class="form-group">
+                                <div class="col-sm-8 col-sm-offset-3">
+                                    <button type="submit" id="submitBtn" class="btn btn-primary">查询</button>
+                                    <button type="reset" id="resetBtn" class="btn btn-primary">重置</button>
+
+                                    <button type="button" id="downloadBtn1" class="btn btn-primary"
+                                            onClick="$('#table_list').tableExport({ type: 'excel', escape: 'false', fileName: $('#formTitle h5').html() })">
+                                        导出当前页
+                                    </button>
+
+                                    <button type="button" id="downloadBtn2" class="btn btn-primary"
+                                            onClick="exportData()">
+                                        导出所有页
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="hidden" id="pageId" name="pageId" value=""/>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="tableRow" class="row">
+        <div class="col-sm-12">
+            <div class="ibox ">
+                <div class="ibox-title">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseTable">
+                        <h5>查询结果</h5>
+                    </a>&nbsp;
+                    <a href="#" id="tableTooltip" data-toggle="tooltip" title=""><i class="fa fa-question-circle"></i></a>
+                </div>
+                <div id="collapseTable" class="ibox-content panel-collapse collapse in">
+                    <div class="row">
+                        <div class="col-sm-4" id="tblDimensionDiv"></div>
+                        <div class="col-sm-4" id="tblTargetDiv"></div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-4" id="tblPivotDimDiv"></div>
+                        <div class="col-sm-4" id="tblPivotTargetDiv"></div>
+                    </div>
+                    <div>
+                        <input type="hidden" id="tableComponentId" name="tableComponentId"/>
+                        <input type="hidden" id="tableComponentType" name="tableComponentType"/>
+                        <input type="hidden" id="tableRowMergeCols" name="tableRowMergeCols"/>
+                        <input type="hidden" id="tableRowSummary" name="tableRowSummary"/>
+                        <input type="hidden" id="tableComponentFixedCol" name="tableComponentFixedCol"/>
+                        <input type="hidden" id="tableComponentPagination" name="tableComponentPagination"/>
+                    </div>
+                    <div class="row row-lg">
+                        <div class="col-sm-12">
+                            <div class="example-wrap">
+                                <div class="example" id="tableDiv">
+                                    <table id="table_list" class="table text-nowrap");></table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="chartRow" class="row">
+        <div class="col-sm-12">
+            <div class="ibox ">
+                <div class="ibox-title">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseChart">
+                        <h5>图形报表</h5>
+                    </a>&nbsp;
+                    <a href="#" id="chartTooltip" data-toggle="tooltip" title=""><i
+                            class="fa fa-question-circle"></i></a>
+                </div>
+                <div id="collapseChart" class="ibox-content panel-collapse collapse in">
+                    <div class="row">
+                        <div class="col-sm-12" id="chartTypeDiv">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12" id="chartDimensionDiv">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12" id="chartTargetDiv">
+                        </div>
+                    </div>
+                    <div class="row row-lg">
+                        <div class="col-sm-12">
+                            <div class="example-wrap" id="chartWrapDiv">
+                                <div class="example" id="chartDiv" style="width: 90%;height: 600px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="chartScriptDiv"></div>
+    <div id="myModal" class="modal fade" data-keyboard="false" data-backdrop="static" data-role="dialog"
+         aria-labelledby="myModalLabel" aria-hidden="true">
+        <div id="loading" class="loading">处理中......&nbsp;</div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        // 获取报表id
+        var requestParam = getRequestParamFromUrl();
+        $("#pageId").val(requestParam['pageId']);
+        // 生成查询条件HTML
+        buildParamHtml(requestParam);
+    });
+
+    // 获取url中"?"符后的字串
+    function getRequestParamFromUrl() {
+        var url = location.search;
+        var requestParam = new Object();
+        if (url.indexOf("?") != -1) {
+            var paramStr = url.substr(1);
+            var params = paramStr.split("&");
+            for (var i = 0; i < params.length; i++) {
+                var paramArray = params[i].split("=");
+                requestParam[paramArray[0]] = paramArray[1];
+            }
+        }
+        return requestParam;
+    }
+
+    function exportData() {
+        //将查询结果导出到CVS
+        exportCvs();
+    }
+</script>
+</body>
+</html>

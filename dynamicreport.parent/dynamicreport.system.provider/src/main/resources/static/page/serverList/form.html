@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <title>>服务器配置操作</title>
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+
+     <link rel="shortcut icon" href="favicon.ico"> 
+     <script type="text/javascript" src="../../assets/js/public_css.js"></script> 
+
+     <link href="../../assets/css/plugins/datapicker/datepicker3.css" rel="stylesheet">
+     
+
+
+</head>
+
+<body class="gray-bg">
+    <div class="wrapper wrapper-content animated fadeInRight">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-content" >
+                        <form class="form-horizontal m-t" id="frm" method="post">
+                          	<input type="hidden" id="id" name="id">
+                        	<div class="form-group"> 
+                                <label class="col-sm-3 control-label">ip地址：</label>
+                                <div class="col-sm-8">
+                                    <input id="ip" name="ip" class="form-control" type="text" required=""  minlength="3" aria-required="true" maxlength="50">
+                                </div>
+                            </div>
+                              <div class="form-group"> 
+                                <label class="col-sm-3 control-label">端口：</label>
+                                <div class="col-sm-8">
+                                    <input id="port" name="port" class="form-control"  minlength="2" type="text"  digits="true"  required="" aria-required="true" maxlength="50">
+                                </div>
+                            </div>
+                            <div class="form-group"> 
+                                <label class="col-sm-3 control-label">状态：</label>
+                                <div class="col-sm-8">
+                                 <select class="form-control" id="status" style="width:200px;height:35px" name="status" required="" aria-required="true">
+									<option value="ACTIVE">启用</option>
+									<option value="INACTIVE">停用</option>
+								</select>
+                                </div>
+                            </div>
+                              <div class="form-group">
+                                <label class="col-sm-3 control-label">描述：</label>
+                                <div class="col-sm-8">
+                                    <textarea rows="2" id="description" name="description" class="form-control" maxlength="500" ></textarea>
+                                </div> 
+                             </div>
+                              
+                             <div class="form-group">
+                                <div class="col-sm-8 col-sm-offset-3">
+                                    <button class="btn btn-hight-light" id="submitBut"  type="submit">提交</button>
+                                </div>
+                            </div>
+                          
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+ 
+    </div>
+   
+    <script type="text/javascript" src="../../assets/js/public.js"></script>
+
+     <script src="../../assets/js/plugins/datapicker/bootstrap-datepicker.js"></script>
+    <script type="text/javascript">
+     $(document).ready(function () {
+  	  	var id=GetQueryString("id");
+  	  	if(id){
+	  		$.ajax({
+    		   type: "GET",
+    		   dataType: "json",
+    		   url: '../../server-list/list/'+id,
+    		   success: function(data){
+    			   if(data){
+         			   $('#frm').formEdit(data);
+     			   }
+    		   }
+    		});
+	  	}
+ 	    var  rules= {
+	    	   	 
+		    };
+	    fromValidate(rules,"../../server-list/save-update");
+ 	   
+ 	    $('#birthday').datepicker({
+ 	    	 language: "zh-CN", 
+ 	    	 autoclose: true, 
+ 	    	 format: "yyyy-mm-dd"
+	    });
+	   
+    });
+    </script>
+
+</body>
+
+</html>

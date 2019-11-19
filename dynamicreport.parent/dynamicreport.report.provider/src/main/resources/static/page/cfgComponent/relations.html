@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>映射配置操作</title>
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+    <link rel="shortcut icon" href="favicon.ico">
+    <link href="../../assets/css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+    <link href="../../assets/css/font-awesome.css?v=4.4.0" rel="stylesheet">
+    <link href="../../assets/css/animate.css" rel="stylesheet">
+    <link href="../../assets/css/bootstrap-editable.css" rel="stylesheet" />
+    <link href="../../assets/css/style.css?v=4.1.0" rel="stylesheet">
+    <link href="../../assets/css/common.css" rel="stylesheet">
+    <link href="../../assets/css/bootstrap-table-reorder-rows.css" rel="stylesheet">
+    <link href="../../assets/css/switch-custom.css" rel="stylesheet">
+    <link href="../../assets/css/bootstrap-select.min.css" rel="stylesheet">
+    <link href="../../assets/css/bootstrap-switch-custom.css" rel="stylesheet">
+    <link href="../../assets/css/plugins/bootstrap-table/bootstrap-table.min.css" rel="stylesheet">
+    <style type="text/css">
+        .table {table-layout:fixed;}
+    </style>
+</head>
+
+<body class="gray-bg">
+    <div class="wrapper wrapper-content animated fadeInRight">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-content">
+                        <form class="form-horizontal m-t" id="form" method="post">
+                        	<input type="hidden" id="id" name="id">
+                             <div class="form-group"> 
+                                <label class="col-sm-3 control-label">下钻表：</label>
+                                <div class="col-sm-4">
+                                	<select class="form-control" id="optionTable" name="table.id" data-live-search="true" >
+									</select>
+                                </div>
+                            </div>
+                            
+                            <div class="row row-lg" id="divTableList">
+		                        <div class="col-sm-12">
+		                            <div class="example-wrap">
+		                                <div class="example">
+		                                    <table id="table_list" data-use-row-attr-func="true" data-reorderable-rows="true" data-mobile-responsive="true" style="table-layout: fixed;word-break:break-all; word-wrap:break-all;">
+                                            </table>
+		                                </div>
+		                            </div>
+		                        </div>
+		                     </div>
+                        </form>
+                        <div class="form-group">
+                                <div class="col-sm-8 col-sm-offset-3">
+                                    <button class="btn btn-primary"  id="submitBut"  type="submit" onclick="submit();">提交</button>
+                                    &nbsp;
+                                    <button class="btn btn-primary"  id="closeBut" onclick="closeChildWindow();" type="button">取消</button>
+                                </div>
+                            </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 全局js -->
+    <script src="../../assets/js/jquery.min.js?v=2.1.4"></script>
+    <script src="../../assets/js/bootstrap.min.js?v=3.3.6"></script>
+
+    <!-- 自定义js -->
+    <script src="../../assets/js/content.js?v=1.0.0"></script>
+
+    <!-- jQuery Validation plugin javascript-->
+    <script src="../../assets/js/plugins/validate/jquery.validate.min.js"></script>
+    <script src="../../assets/js/plugins/validate/additional-methods.min.js"></script>
+    <script src="../../assets/js/plugins/validate/messages_zh.min.js"></script>
+    <script src="../../assets/js/plugins/layer/layer.min.js"></script>
+    <script src="../../assets/js/plugins/layer/laydate/laydate.js"></script>
+    <script src="../../assets/common/formUtils.js"></script>
+    <script src="../../assets/js/plugins/bootstrap-table/bootstrap-table.min.js"></script>
+    <script src="../../assets/js/plugins/bootstrap-table/bootstrap-table-mobile.min.js"></script>
+    <script src="../../assets/js/bootstrap-editable.js"></script>
+    <script src="../../assets/js/bootstrap-table-editable.js"></script>
+    <script src="../../assets/js/plugins/treeview/bootstrap-treeview.js"></script>
+    <script src="../../assets/js/bootstrap-select.min.js"></script>
+    <script src="../../assets/js/bootstrap-table-reorder-rows.js"></script>
+    <script src="../../assets/js/jquery.tablednd.js"></script>
+    <script src="../../assets/js/plugins/treeview/dialogMsg.js"></script>
+    <script src="../../assets/js/plugins/bootstrap-dialog/bootstrap-dialog.min.js"></script>
+    <script src="../../assets/common/PermissionUtils.js"></script>
+    <script src="../../assets/js/plugins/bootstrap-table/locale/bootstrap-table-zh-CN.min.js"></script>
+
+    <script type="text/javascript">
+    var columnNames=GetQueryString("columnNames");
+    var rowId=GetQueryString("rowId");
+    var colId=GetQueryString("colId");
+    var pageId=GetQueryString("pageId");
+    var relations= JSON.parse(unescape(GetQueryString("relations")));
+    var columnNameArray = new Array();
+    columnNameArray = columnNames.split(',');
+    $(document).ready(function () {
+		$.ajax({
+				type: 'GET',
+				url: '../../cfg/page/list-all',
+	        dataType: 'json',
+	   			async:false, 
+	        success: function (data) {
+				    var len = data.length;
+			 	    $("#optionTable").find('option').remove();
+			      $("#optionTable").append($('<option value=\'\'>' + "---请选择---" + '</option>'));
+		        for (i = 0; i < len; i++) {
+		                if(data[i].id == pageId){
+                            $("#optionTable").append($('<option value=' + data[i].id + ' selected>' + data[i].title + '</option>'));
+                        }else{
+                            $("#optionTable").append($('<option value=' + data[i].id + '>' + data[i].title + '</option>'));
+                        }
+		        }
+                    $("#optionTable").selectpicker('refresh');
+			    }
+		});
+
+        init();
+
+        $("#optionTable").change(function(){
+           init();
+        });
+
+        function init() {
+            //下钻表下拉框
+            pageId = $('#optionTable option:selected').val();
+            if(pageId != ''){
+                $.ajax({
+                    url: '../../cfg/page-param/list-all?page='+pageId,
+                    type: "GET",
+                    data : {},
+                    async : false,
+                    success:function(data){
+                        var jsonStr  = '[';
+                        $.each(data, function(idx, param) {
+                            if(idx == 0){
+                                jsonStr  = jsonStr  + '{"relationColumn":"'+ param.param.paramName +'"';
+                            }else{
+                                jsonStr  = jsonStr  + ',{"relationColumn":"'+ param.param.paramName +'"';
+                            }
+                            if(relations != null && relations != ''){
+                                $.each($.parseJSON(relations), function(idx, relation) {
+                                    if(param.param.paramName == relation.tgtParamName){
+                                        jsonStr  = jsonStr  + ',"column":"'+ relation.paramName +'"';
+                                    }
+                                });
+                            }
+                            jsonStr  = jsonStr  + '}';
+                        });
+                        jsonStr  = jsonStr  + ']';
+
+                        var jsonObj =  JSON.parse(jsonStr);
+
+                        $("#table_list").bootstrapTable('destroy');
+                        $("#table_list").bootstrapTable({
+                            height: $(window).height() - 100,
+                            //数据列
+                            columns: [
+                                {
+                                    title: "下钻表参数",
+                                    field: "relationColumn",
+                                    sortable: true,
+                                    width:"80"
+                                },
+                                {
+                                    title: "字段",
+                                    sortable: true,
+                                    field: "column",
+                                    width:150,
+
+                                    editable: {
+                                        type: 'select',
+                                        emptytext:'点我选择',
+                                        title: '字段',
+                                        source: function () {
+                                            var result = [];
+                                            result.push({value:'', text:''});
+                                            if(columnNameArray != null && columnNameArray.length != 0){
+                                                for(j=0;j<columnNameArray.length;j++) {
+                                                    result.push({value: columnNameArray[j], text: columnNameArray[j]});
+                                                }
+                                            }
+                                            return result;
+                                        }
+                                    }
+                                }],
+                            data: jsonObj
+                        });
+                    }
+                });
+            }
+        }
+    });
+
+    function submit() {
+        var tr =$('#table_list tbody').find('tr');
+        var len = tr.length;
+        var json = [];
+        for(var i = 0;i < len;i++){
+		    var firstTdText = $(tr[i]).find('td').eq(0).text();
+		    var secondTdText = $(tr[i]).find('td').eq(1).find('a').data('value');
+            var object = new Object();
+            object.componentColId=colId;
+            object.paramName=secondTdText;
+            object.tgtParamName=firstTdText;
+		    if(firstTdText == '' || secondTdText == '' || secondTdText == 'undefined'){
+		        continue;
+            }
+            json.push(object);
+        }
+        var pageId = $("#optionTable").find('option:selected').val();
+        if(pageId != ''){
+            $("#table_list tbody", parent.document).find('tr').eq(rowId).find('td').find('button').eq(0).html('<i class="fa fa-edit"></i>已映射</button>');
+        }else{
+            $("#table_list tbody", parent.document).find('tr').eq(rowId).find('td').find('button').eq(0).html('<i class="fa fa-edit"></i>未映射</button>');
+        }
+        $("#table_list tbody", parent.document).find('tr').eq(rowId).find('td').find('button').parent().find('div').eq(0).text(pageId);
+        $("#table_list tbody", parent.document).find('tr').eq(rowId).find('td').find('button').parent().find('div').eq(1).text(JSON.stringify(json));
+
+
+        var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+        parent.layer.close(index);
+    }
+
+    </script>
+
+</body>
+
+</html>

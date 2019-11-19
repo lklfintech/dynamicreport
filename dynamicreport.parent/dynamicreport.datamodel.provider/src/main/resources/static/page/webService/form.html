@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+<title>接口服务</title>
+<meta name="keywords" content="">
+<meta name="description" content="">
+
+<link rel="shortcut icon" href="favicon.ico">
+<link href="../../assets/css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+<link href="../../assets/css/font-awesome.css?v=4.4.0" rel="stylesheet">
+<link href="../../assets/css/animate.css" rel="stylesheet">
+<link href="../../assets/css/style.css?v=4.1.0" rel="stylesheet">
+
+</head>
+
+<body class="gray-bg">
+	<div class="wrapper wrapper-content animated fadeInRight">
+		<div class="row">
+			<div class="col-sm-12">
+				<div class="ibox float-e-margins">
+					<div class="ibox-content">
+						<form class="form-horizontal m-t" id="frm" method="post">
+							<div class="form-group">
+								<label class="col-sm-3 control-label">WSDL接口：</label>
+								<div class="col-sm-8">
+									<input id="wdsl_URL" name="wdsl_URL"
+										class="form-control" type="text" maxlength="100">
+								</div>
+								<button class="btn btn-success " id="queryMethod" type="button" >查询</button>
+							</div>
+							
+							<div class="form-group">
+								<label class="col-sm-3 control-label">方法名：</label>
+								<div class="col-sm-8">
+									<select class="form-control" id="wsdl_method" style="width: 200px;"
+										name="wsdl_method" required="" aria-required="true">
+									</select>
+								</div>
+							</div>
+							<div id="params"></div>
+							
+							<div class="form-group">
+								<div class="col-sm-8 col-sm-offset-3">
+									<button class="btn btn-primary" id="submit" type="submit">提交</button>
+								</div>
+								<div class="col-sm-8 col-sm-offset-3" >
+									<span id="testResult" style="word-wrap:break-word; word-break:break-all; "></span>
+								</div>
+							</div>
+							
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</div>
+
+
+	<!-- 全局js -->
+	<script src="../../assets/js/jquery.min.js?v=2.1.4"></script>
+	<script src="../../assets/js/bootstrap.min.js?v=3.3.6"></script>
+
+	<!-- 自定义js -->
+	<script src="../../assets/js/content.js?v=1.0.0"></script>
+
+	<!-- jQuery Validation plugin javascript-->
+	<script src="../../assets/js/plugins/validate/jquery.validate.min.js"></script>
+	<script
+		src="../../assets/js/plugins/validate/additional-methods.min.js"></script>
+	<script src="../../assets/js/plugins/validate/messages_zh.min.js"></script>
+	<script src="../../assets/js/plugins/layer/layer.min.js"></script>
+	<script src="../../assets/js/plugins/layer/laydate/laydate.js"></script>
+	<script src="../../assets/common/formUtils.js"></script>
+	<script type="text/javascript">
+	var infos=[];
+    $(document).ready(function () {
+    	 $("#wdsl_URL").on('input',function(){
+    		 $('#wsdl_method').html('');
+	    	 $("#params").empty();
+			 $("#testResult").html("");
+         })
+    	
+    	 $("#frm").validate({
+     	    rules: {
+     	    	wdsl_URL: {
+     	        required: true,
+     	        minlength: 1,
+     	    	maxlength: 500
+     	      },wsdl_method: {
+     	    	required: true,
+     	        minlength: 1,
+     	    	maxlength: 100
+     	      }
+     	    },
+     	    messages: {},
+     	    submitHandler:function(form){
+     	    	 $("#submit").text("提交中..");
+    			 $("#submit"). disabled=true;
+    			var params=$('form').serializeArray();
+    			var newParams=[];
+    			for(var i=0;i<params.length;i++){
+    				var param=params[i];
+    				if(i>1){
+	    				var val=$("#"+param.name+"_option").val();
+	    				param.type=val;
+    				}
+    				newParams.push(param);
+    			}
+     	    	$.ajax({
+    	    		   type: "POST",
+    	    		   dataType: "json",
+    	    		   url: "../../web-service/execute-service",
+    	    		   data: {params:JSON.stringify(newParams)},
+    	    		   success: function(msg){
+    	    			   
+    	    			   $("#submit").text("提交");
+    	      			  $("#submit"). disabled=false;
+    	      			 
+    	    			   $("#testResult").html("结果</br>"+msg.msg);
+    	    		   }
+    	    		});
+             } 
+     	});
+    	
+    	
+    	
+		$("#queryMethod").on('click',function(){
+    	    	$('#wsdl_method').html('');
+    	    	 $("#params").empty();
+    			 $("#testResult").html("");
+    			 $("#queryMethod").text("查询中..");
+    			 $("#queryMethod"). disabled=true;
+    	    	 var wdsl_URL=$("#wdsl_URL").val();
+    	    	 $.ajax({
+    	    		   type: "GET",
+    	    		   dataType: "json",
+    	    		   url: "../../web-service/method-by-url",
+    	    		   data:{'wdslURL':wdsl_URL},
+    	    		   success: function(data){
+    	    			   $("#queryMethod").text("查询");
+	       					$("#queryMethod"). disabled=false;
+    	    			   if("操作成功"!=data.msg){
+    	    				   $("#testResult").html(data.msg);
+    	    				   return;
+    	    			   }
+    	    			   infos=data.obj;
+    	    			   var len = infos.length;
+	       	     		 	$("#wsdl_method").find('option').remove();
+	       	    		    $("#wsdl_method").append($('<option value=\'\'>' + "---请选择方法---" + '</option>'));
+	       			        for (i = 0; i < len; i++) {
+	       			        	$("#wsdl_method").append($('<option value=' + infos[i].methodName + '>' + infos[i].methodName + '</option>'));
+	       			        }
+	       					
+    	    		   }
+    	  	   	});
+    	  })
+    
+    	 //输入框正在输入时
+         $("#wsdl_method").on('change',function(){
+        	 var len = infos.length;
+			 $("#params").empty();
+			 $("#testResult").html("");
+			 for (var i = 0; i < len; i++) {
+				 var info=infos[i];
+			 	 if($("#wsdl_method").val()==info.methodName){
+			 		 var names= info.inputNames;
+			 		 var types= info.inputType;
+		        	 var lenj = names.length;
+		        	 
+			 		 for (var j = 0; j < lenj; j++) {
+			 			 var name=names[j];
+			 			 var type=types[j];
+						 $("#params").append($('<div id="ddd" class="form-group">'+
+											'	<label class="col-sm-3 control-label">'+name+'：</label>' +
+						 					'	<div class="col-sm-5">' +
+						 					'		<input id="'+name+'" name="'+name+'" class="form-control" type="text" maxlength="100">'+
+						 					'	</div>'+
+						 					'	<label class="col-sm-1 control-label">类型：</label>'+
+			                                '	<div class="col-sm-1">'+
+				                            '	     <select class="form-control" id="'+name+'_option" style="width:200px;"  aria-required="true">'+
+											'			<option value="string">string</option>'+
+											'			<option value="decimal">decimal</option>'+
+											'			<option value="integer">integer</option>'+
+											'			<option value="int">int</option>'+
+											'			<option value="float">float</option>'+
+											'			<option value="double">double</option>'+
+											'			<option value="long">long</option>'+
+											'			<option value="boolean">boolean</option>'+
+											'			<option value="array">array</option>'+
+											'			<option value="unknown">unknown</option>'+
+											'		</select>'+
+				                            '	</div>'+
+						 					'</div>' ));
+						$("#"+name+"_option option[value = "+type+"]").attr("selected",true);
+					}
+			 	} 
+			 }
+         })  
+     })
+    </script>
+
+</body>
+
+</html>

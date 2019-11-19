@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <title>缓存配置列表</title>
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+
+    <link rel="shortcut icon" href="favicon.ico"> 
+    <script type="text/javascript" src="../../assets/js/public_css.js"></script> 
+ 	<link href="../../assets/css/common.css" rel="stylesheet">
+
+</head>
+
+<body class="gray-bg">
+    <div class="wrapper wrapper-content  animated fadeInRight">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="ibox ">
+                    <div class="ibox-title">
+                        <h5>缓存配置管理</h5>
+                    </div>
+                    <div class="ibox-content">
+                        <div class="row row-lg">
+		                    <div class="col-sm-12">
+		                        <!-- Example Card View -->
+		                        <div class="example-wrap">
+		                            <div class="example">
+		                            	<div class="btn-group hidden-xs" id="tableToolbar" role="group">
+		                                    <button type="button" class="btn btn-hight-light" title="添加" onclick="add('form.html','893px', '460px','缓存配置添加');" id="addBtn">
+		                                        <i class="fa fa-plus" aria-hidden="true"></i>&nbsp;添加
+		                                    </button>
+		                                    <button type="button" class="btn btn-hight-light"  id="refreshBut" title="刷新" onclick="refresh();"  id="addBtn">
+		                                        <i class="fa fa-bolt" aria-hidden="true"></i>&nbsp;刷新
+		                                    </button>
+		                                </div>
+		                            	<table id="table_list" data-mobile-responsive="true" style="table-layout: fixed;word-break:break-all; word-wrap:break-all;"></table>
+		                            </div>
+		                        </div>
+		                        <!-- End Example Card View -->
+		                    </div>
+	                    </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="myModal" class="modal fade" data-keyboard="false"
+       data-backdrop="static" data-role="dialog"
+       aria-labelledby="myModalLabel" aria-hidden="true">
+       <div id="loading" class="loading">处理中......&nbsp;</div>
+    </div>
+   <script type="text/javascript" src="../../assets/js/public.js"></script>
+      
+    <!-- Page-Level Scripts -->
+    <script>
+        $(document).ready(function () {
+        	var columns=[{
+			    title: "选择",
+			    checkbox:true,
+			    width:30
+			},{
+		        title: "服务器ip地址",
+		        field: "serverList.ip",
+		        sortable: true,
+		        width:"50"
+		    },{
+		        title: "服务器端口",
+		        field: "serverList.port",
+		        sortable: true,
+		        width:"50"
+		    },{
+		        title: "上下文路径",
+		        field: "contextPath",
+		        sortable: true,
+		        width:"50"
+		    },{
+		        title: "服务路径",
+		        field: "servicePath",
+		        sortable: true,
+		        width:"50"
+		    }
+		     ,{
+		        title: "状态",
+		        sortable: true,
+		        field: "status",
+		        width:"50",
+                formatter: function (value, row, index) {
+                	if(value == 'ACTIVE')
+                		return '<span class="label label-info">启用</span>';
+                	else if(value == 'INACTIVE')
+                		return '<span class="label label-danger">停用</span>';
+                }
+		    },{
+		        title: "操作",
+		        field: "empty",
+		        width:"80",
+                formatter: function (value, row, index) {
+	                	if(!contain(parent.globalPermissions,'sys_cache_service:saveOrUpdate')){
+	                		 $("#addBut").attr("disabled","disabled");
+	                	}
+	                	if(!contain(parent.globalPermissions,'sys_cache_service:refresh')){
+	                		 $("#refreshBut").attr("disabled","disabled");
+	                	}
+                	 	var editTile="缓存配置修改";
+                     	var operateHtml = '';
+                    	var editUrl='form.html?id=' + row.id;
+                    	var widht='893px';
+                    	var height='460px';
+                    	var delUrl="../../cache-service/" + row.id;
+                    	if(contain(parent.globalPermissions,'sys_cache_service:saveOrUpdate')){
+                        	var operateHtml = '<button class="btn btn-primary btn-xs" type="button" onclick="edit(&quot;'+editUrl+'&quot;,&quot;'+ widht+'&quot;,&quot;'+height+'&quot;,&quot;'+editTile+'&quot;)" ><i class="fa fa-edit"></i>&nbsp;修改</button> &nbsp;';
+                    	}
+                    	if(contain(parent.globalPermissions,'sys_cache_service:delete')){
+                        	operateHtml = operateHtml + '<button class="btn btn-danger btn-xs" type="button" onclick="del(&quot;'+row.id+'&quot;,&quot;'+delUrl+'&quot;)"><i class="fa fa-remove"></i>&nbsp;删除</button> &nbsp;';
+                    	}
+                      	return operateHtml;
+                  }
+		    }];
+         	inintTableList("table_list",  "../../cache-service/list", columns,detailFormatter);
+         });
+   
+  
+    
+       
+        function refresh(){
+        		//获取所有被选中的记录
+       	        var rows = $("#table_list").bootstrapTable('getSelections');
+       			if(rows.length==0){
+       				layer.msg("请选中要刷新的记录！", {time: 2000,icon:7},function(){
+           				return;
+       				});
+       				return;
+       			}
+       	        var ids = '';
+       	        for (var i = 0; i < rows.length; i++) {
+       	            ids += rows[i]['id'] + ",";
+       	        }
+       	        ids = ids.substring(0, ids.length - 1);
+       	     	$('#myModal').modal('show');
+           		$.ajax({ 
+       	    		   type: "PUT",
+       	    		   dataType: "json",
+       	    		   url:  "../../cache-service/refresh?ids=" + ids,
+       	    		   success: function(msg){
+        	   	    			layer.msg(msg.msg, {time: 2000});
+        	   	    			$('#myModal').modal('hide');
+       	    		   }
+       	    	});
+         }
+     
+    </script>
+
+ 
+</body>
+
+</html>
