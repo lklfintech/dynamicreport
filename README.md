@@ -16,4 +16,5 @@ Take the mysql database as an example:
 * Execute the script dynamicreport.sql, script path: dynamicreport.parent.dynamicreport.feature.the.provider.src-main.resources
 * Start-up work  
   1) Start in the compiler, such as eclipse or IDEA, open dynamicreport.feature.the.src-main-java-com-lakala-dynamicreport-application.java, right-click-and-application run  
-  2) Start in server. First, packaged with dynamicreport.parent/pom.xml with maven; then copied to any directory in the server and unzip tar.gz file; then go to dynamicreport.parent.dynamicreport.dynamicreport.feature.the.provider/bin directory, start with the script start.sh 
+  2) Start in server. First, packaged with dynamicreport.parent/pom.xml with maven; then copied to any directory in the server and unzip tar.gz file; then go to dynamicreport.parent.dynamicreport.dynamicreport.feature.the.provider/bin directory, start with the script start.sh
+  3) Url: http://localhost:8080/dynamicreport   username & password: admin

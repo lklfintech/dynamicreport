@@ -17,4 +17,4 @@
 * 启动工程  
   1）编译器中启动，如eclipse或IDEA，打开dynamicreport.feature.provider\src\main\java\com\lakala\dynamicreport\Application.java，右键->run Application  
   2）服务器启动，首先，使用maven，通过dynamicreport.parent/pom.xml打包；然后拷贝至服务器中任何目录解压；然后进入dynamicreport.parent\dynamicreport.feature.provider\bin目录，使用脚本start.sh启动 
-  
+  3）访问Url: http://localhost:8080/dynamicreport   username & password: admin
