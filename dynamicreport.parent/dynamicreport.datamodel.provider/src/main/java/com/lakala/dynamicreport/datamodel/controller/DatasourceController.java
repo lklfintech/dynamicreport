@@ -136,5 +136,24 @@ public class DatasourceController extends BaseController {
 		ds.setPassword("******");
 		return ds;
 	}
+	
+	/**
+	 * 集群
+	 * 根据配置刷新各个节点的数据库实例
+	 * 
+	 * @return
+	 */
+	@ApiOperation(value = "根据配置刷新各个节点的数据库实例")
+	@RequestMapping(value = "/refresh", method = RequestMethod.GET)
+	public ResultJson refresh(String identifier) {
+		try {
+			dataSourceService.refreshDSBean(identifier);
+		} catch (Exception e) {
+			log.error("刷新失败{}",e);
+			return failure("刷新失败");
+		}
+		return success("刷新成功");
+		
+	}
 
 }

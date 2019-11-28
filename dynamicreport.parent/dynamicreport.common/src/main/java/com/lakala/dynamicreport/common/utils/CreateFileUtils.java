@@ -15,19 +15,30 @@
  */
 package com.lakala.dynamicreport.common.utils;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
+import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.regex.Pattern;
+
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.text.NumberFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
 
 /**
  * <p>
@@ -153,7 +164,7 @@ public class CreateFileUtils {
 
 			// 格式化日期数据
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-
+			Pattern pattern = Pattern.compile("[0-9]{13,}");
 			// 实例化文件输出流
 			fileOutputStream = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), "GB2312"), 1024);
 			for (List<Object> rowData : rows) {
@@ -177,6 +188,10 @@ public class CreateFileUtils {
 					} else {
 						field = ""; // null时给一个空格占位
 					}
+					if(pattern.matcher(field).matches()){
+						field="'"+field;
+					}
+					
 					// 拼接所有字段为一行数据
 					if (i < rowData.size() - 1) { // 不是最后一个元素
 						fileOutputStream.write("\"" + field + "\"" + ",");
@@ -234,6 +249,8 @@ public class CreateFileUtils {
 						cell.setCellValue((Double) rowData[j]);
 					} else if (rowData[j].getClass() == int.class) { // int类型数值
 						cell.setCellValue((Integer) rowData[j]);
+					}else { // int类型数值
+						cell.setCellValue(String.valueOf(rowData[j]));
 					}
 				}
 			}
@@ -313,16 +330,47 @@ public class CreateFileUtils {
 			}
 			reader.close();
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error("读取文件流失败",e);
 		} finally {
 			if (reader != null) {
 				try {
 					reader.close();
 				} catch (IOException e) {
-					e.printStackTrace();
+                    log.error("关闭文件流失败",e);
 				}
 			}
 		}
 		return laststr;
 	}
+	
+	public static  void saveFile(String sourcePath,String fileName,MultipartFile file) throws IOException {
+ 		//目标路径
+		String filePath = sourcePath;
+		File file3 = new File(filePath);
+		//如果文件目录不存在，就执行创建		
+		if(!file3.isDirectory()){
+			file3.mkdirs();
+		}
+ 		//目标文件名称
+		String targetName =fileName;
+ 		//创建目标文件
+		File targetFile = new File(filePath + targetName);
+		FileOutputStream fos = new FileOutputStream(targetFile);
+			//读取本地文件
+		//File localFile = new File("E:"+File.separator+"1.jpg");
+		//获取本地文件输入流
+		InputStream stream = file.getInputStream();
+		
+		//写入目标文件
+		byte[] buffer = new byte[1024*1024];
+		int byteRead = 0;
+		while((byteRead=stream.read(buffer))!=-1){
+			fos.write(buffer, 0, byteRead);
+			fos.flush();
+		}
+		fos.close();
+		stream.close();
+	}
+	 
+    
 }

@@ -121,7 +121,7 @@ public class ShiroConfiguration {
 		filterChainDefinitionMap.put("/swagger-resources/configuration/ui", "anon");
 		filterChainDefinitionMap.put("/v2/api-docs", "anon");
 		filterChainDefinitionMap.put("/webjars/springfox-swagger-ui/**", "anon");
-
+		filterChainDefinitionMap.put("/data-source/refresh", "anon");
 		filterChainDefinitionMap.put("/**", "authc");
 		shiroFilterFactoryBean.setFilterChainDefinitionMap(filterChainDefinitionMap);
 		return shiroFilterFactoryBean;

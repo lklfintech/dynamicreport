@@ -98,4 +98,11 @@ public interface IDataSourceService extends IBaseService<DataSource, Long>{
      * @return
      */
     ResultJson saveOrUpdateBySave(DataSource dataSource) throws Exception;
+
+    /**
+     * 刷新集群各节点的数据源bean
+     * @param identifier
+     * @throws Exception 
+     */
+	void refreshDSBean(String identifier) throws Exception;
 }
